@@ -1,6 +1,6 @@
 # Caddy integration
 
-The included `Caddyfile` demonstrates a protected host named `app.localhost`.
+The included `Caddyfile` protects `app.localhost`.
 
 ## Request flow
 
@@ -13,7 +13,7 @@ The included `Caddyfile` demonstrates a protected host named `app.localhost`.
 
 ## Protecting multiple hosts
 
-Create one application in the Gatehouse console for each policy boundary, then map the Caddy site to the application slug:
+Create one application in Gatehouse for each policy boundary, then map the Caddy site to the application slug:
 
 ```caddyfile
 reports.example.com {
@@ -35,7 +35,7 @@ reports.example.com {
 
 A slug is stable and suitable for configuration. Application display names, domains, upstream health paths, and policy can change in the console.
 
-Gatehouse can also resolve by forwarded host when `application` is omitted, but explicit slugs avoid ambiguity and make configuration review easier.
+Gatehouse can also resolve by forwarded host when `application` is omitted, but explicit slugs avoid ambiguity.
 
 ## Gatehouse routes on a protected host
 

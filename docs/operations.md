@@ -13,7 +13,7 @@ Set `RUN_MIGRATIONS=false` when migrations are performed by a separate release j
 
 ## Backups
 
-Gatehouse has one source of truth: PostgreSQL. Back up the complete database so Better Auth identities and Gatehouse application policy remain consistent.
+Gatehouse stores identities and application policy in PostgreSQL. Back up the complete database so related records stay consistent.
 
 ```bash
 pg_dump \
@@ -56,9 +56,9 @@ Keep these outside PostgreSQL and source control:
 - PostgreSQL password
 - initial administrator password
 
-Changing `BETTER_AUTH_SECRET` is a security-sensitive operation. Schedule it as a credential rotation, expect existing signed state to stop validating, and verify login, password reset, OAuth callbacks, and 2FA afterward.
+Changing `BETTER_AUTH_SECRET` is a credential rotation. Expect existing signed state to stop validating, and verify login, password reset, OAuth callbacks, and 2FA afterward.
 
-The browser receives only capability booleans and safe runtime settings. Provider and delivery secrets are never returned by `/api/admin/config`.
+The browser receives only capability booleans and runtime settings. Provider and delivery secrets are never returned by `/api/admin/config`.
 
 ## Email delivery
 
@@ -78,7 +78,7 @@ In production, configure `MAIL_WEBHOOK_URL`. Gatehouse sends a JSON POST contain
 
 When `MAIL_WEBHOOK_TOKEN` is set, the request includes `Authorization: Bearer <token>`. The request has a ten-second timeout and non-2xx responses fail the authentication operation instead of pretending delivery succeeded.
 
-Development-only console delivery is controlled by `ALLOW_DEVELOPMENT_MAIL_LOG`; it defaults off in production.
+Console delivery is controlled by `ALLOW_DEVELOPMENT_MAIL_LOG`; it defaults off in production.
 
 ## Trusted proxy boundary
 
@@ -101,7 +101,7 @@ If Gatehouse must be exposed directly, set `TRUST_PROXY_HEADERS=false` and do no
 
 ## Audit retention
 
-`auditRetentionDays` is editable from the admin settings page and validated between 1 and 3650 days. Cleanup deletes older records at startup and every 24 hours.
+`auditRetentionDays` is editable from the admin settings page and must be between 1 and 3650 days. Cleanup deletes older records at startup and every 24 hours.
 
 Before reducing retention, export needed records or archive them externally. Audit metadata can include IP addresses, user agents, object identifiers, and before/after configuration values.
 
@@ -117,4 +117,4 @@ From the admin console an operator can:
 - tighten role/domain/CIDR/MFA/session-age policy;
 - export the audit log.
 
-For suspected edge compromise, rotate edge credentials, remove direct access to Gatehouse, revoke sessions and API keys, and inspect audit events for spoofed forwarding metadata.
+For suspected edge compromise, rotate edge credentials, remove direct access to Gatehouse, revoke sessions and API keys, and inspect audit events for forged forwarding metadata.

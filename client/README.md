@@ -1,6 +1,6 @@
 # Gatehouse client
 
-React 19, TanStack Query, TanStack Router file-based routing, Tailwind CSS 4, Biome, and Better Auth client integration for the Gatehouse identity control plane.
+Gatehouse client built with React 19, TanStack Query, TanStack Router file-based routing, Tailwind CSS 4, Biome, and Better Auth client integration.
 
 Use the repository-level [README](../README.md) for setup and architecture.
 
@@ -16,7 +16,7 @@ npm run build
 
 Route definitions live in `src/routes`. The TanStack Router plugin generates `src/routeTree.gen.ts`; do not edit that generated file directly.
 
-The Vite plugin is the only route generator. `npm run dev`, `npm run build`, and Vitest all load the plugin and keep the committed route tree current; there is no separate Router CLI dependency. Route loaders preload TanStack Query data through the typed router context.
+The Vite plugin is the only route generator. `npm run dev`, `npm run build`, and Vitest load the plugin and keep the committed route tree current; there is no Router CLI dependency. Route loaders preload TanStack Query data through the typed router context.
 
 ## Code quality
 
@@ -30,8 +30,8 @@ npm run format         # format in place
 npm run format:check   # verify formatting only
 ```
 
-Biome also enforces project-specific safety rules for Lucide icons, HTML injection, destructive confirmation dialogs, and invalid React Server Component directives.
+Biome also enforces project rules for Lucide icons, HTML injection, destructive confirmation dialogs, and invalid React Server Component directives.
 
 ## UI primitives
 
-`components.json` selects the shadcn `base-nova` style and Lucide icon library. Add or update design-system primitives with the shadcn CLI; application code should compose files from `src/components/ui` rather than recreate native controls.
+`components.json` selects the shadcn `base-nova` style and Lucide icon library. Add or update primitives with the shadcn CLI; application code should compose files from `src/components/ui` instead of recreating native controls.

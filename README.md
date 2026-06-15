@@ -1,22 +1,22 @@
 # Gatehouse
 
-Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway built with Better Auth, Hono, React, and Caddy. It protects multiple upstream applications from one admin console while keeping authentication, application policy, sessions, API keys, and audit history in a single database.
+Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway built with Better Auth, Hono, React, and Caddy. It protects upstream applications from one admin console and stores authentication, policy, sessions, API keys, and audit history in PostgreSQL.
 
 ## What is implemented
 
-### Authentication and account security
+### Authentication
 
 - Email/password sign-in with verification and password reset delivery hooks
 - Google and GitHub OAuth when credentials are configured; unavailable providers are hidden from the UI
-- Verified same-email account linking, explicit connect/disconnect controls, different-email rejection, and last-method protection
+- Same-email account linking with connect/disconnect controls, different-email rejection, and last-method protection
 - The public-signup switch applies to every user-creation path, including OAuth callbacks, OTP, and magic links
 - Magic-link and email-OTP sign-in
 - Passkeys with required user verification
-- TOTP two-factor authentication, email second factor, recovery codes, trusted-device support, enrollment QR flow, rotation, and disable controls
+- TOTP, email second factor, recovery codes, trusted devices, QR enrollment, rotation, and disable controls
 - Have I Been Pwned password checks and Cloudflare Turnstile support
 - PostgreSQL-backed rate limiting
 - Better Auth admin operations, impersonation, bans, sessions, and API keys
-- Session assurance metadata (`authMethod` and `mfaVerifiedAt`) so MFA policy checks the current session, not merely whether a user enrolled 2FA
+- Session assurance metadata (`authMethod` and `mfaVerifiedAt`) so MFA policy checks the current session
 
 ### Protected applications and access policy
 
@@ -31,7 +31,7 @@ Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway
 
 ### Admin console
 
-- Operational overview with users, sessions, sign-ins, denied decisions, application health, MFA/passkey adoption, API-key status, activity trend, and recent events
+- Operational overview for users, sessions, sign-ins, denied decisions, application health, API-key status, and recent events
 - Application and policy editor
 - User inspector with accounts, passkeys, sessions, API keys, grants, and activity
 - Global session inventory and revocation without exposing raw tokens
@@ -39,7 +39,7 @@ Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway
 - Searchable audit log with severity/outcome filters, before/after data, and CSV export
 - Security-posture page
 - Safe runtime settings separated from deployment secrets
-- Global command search, responsive sidebar, light/dark modes, route-level code splitting, and an OKLCH design system
+- Command search, responsive sidebar, light/dark modes, route-level code splitting, and OKLCH colors
 
 ### PostgreSQL and operations
 
@@ -71,7 +71,7 @@ Caddy (public entry point)
 Authorized requests -> protected upstream application
 ```
 
-Caddy is deliberately thin. It sends the request to `/api/verify?application=<slug>`, copies only Gatehouse-produced identity headers, and then proxies to the upstream. Application policy remains in PostgreSQL and can be changed without editing Caddy.
+Caddy sends requests to `/api/verify?application=<slug>`, copies only Gatehouse-produced identity headers, and proxies authorized requests to the upstream. Application policy stays in PostgreSQL and can change without editing Caddy.
 
 ## Quick start with Docker Compose
 
@@ -114,13 +114,13 @@ npm ci
 npm run dev
 ```
 
-Client routes live in `client/src/routes`. UI primitives live in `client/src/components/ui` and are managed through the shadcn CLI; feature components compose those primitives rather than reimplementing controls. The TanStack Router Vite plugin generates the typed route tree during development, tests, and production builds; the Router CLI is not installed. Biome is the only client formatter and linter; run `npm run check` before committing.
+Client routes live in `client/src/routes`. UI primitives live in `client/src/components/ui` and are managed with the shadcn CLI. Feature components compose those primitives instead of reimplementing controls. The TanStack Router Vite plugin generates the typed route tree during development, tests, and production builds; the Router CLI is not installed. Biome is the only client formatter and linter; run `npm run check` before committing.
 
 Vite proxies `/api/auth`, `/api/verify`, and `/api/admin` to `http://localhost:3001`.
 
 ## Database schema and migrations
 
-`server/src/db/schema.ts` is the single source of truth for Better Auth and Gatehouse tables. Better Auth uses the official Drizzle adapter against that schema, and Drizzle Kit writes generated migrations to `server/drizzle`.
+`server/src/db/schema.ts` defines Better Auth and Gatehouse tables. Better Auth uses the official Drizzle adapter against that schema, and Drizzle Kit writes generated migrations to `server/drizzle`.
 
 ```bash
 cd server
@@ -130,7 +130,7 @@ DATABASE_URL=postgresql://... npm run db:migrate
 npm run db:studio     # optional local database browser
 ```
 
-When `RUN_MIGRATIONS=true`, the server applies pending Drizzle migrations automatically during startup under a PostgreSQL advisory lock. The Drizzle schema and generated migrations are the only supported database definition. Never rewrite an applied migration; update the schema and generate a new migration.
+When `RUN_MIGRATIONS=true`, the server applies pending Drizzle migrations automatically during startup under a PostgreSQL advisory lock. The Drizzle schema and generated migrations define the database. Never rewrite an applied migration; update the schema and generate a new migration.
 
 ## Forward-auth contract
 
@@ -156,12 +156,12 @@ X-Auth-Public
 
 Never trust these headers from an internet client. Strip them at the edge and copy only the headers returned by the authorization subrequest, as the included `Caddyfile` does.
 
-## Account linking behavior
+## Account linking
 
-Gatehouse keeps one local user identity with multiple Better Auth account records:
+Gatehouse keeps one local user identity with multiple Better Auth account records.
 
-- A Google or GitHub login can implicitly join an existing user only when the provider returns the same verified email and the local email is already verified.
-- Signed-in users can explicitly connect another configured provider from the dashboard. The provider must return the same verified email.
+- A Google or GitHub login can join an existing user only when the provider returns the same verified email and the local email is already verified.
+- Signed-in users can connect another configured provider from the dashboard. The provider must return the same verified email.
 - Different-email linking is rejected. Provider profile data does not overwrite the local name, email, or avatar during linking.
 - Users can disconnect social providers, but Better Auth prevents removal of the final sign-in method.
 - Disabling public signup blocks new users from email, OAuth callback, OTP, and magic-link flows while authenticated administrators can still provision users.
@@ -196,7 +196,7 @@ See `.env.example` and [Operations](docs/operations.md) for the full deployment 
 
 ## Verification
 
-Run the complete local verification pipeline:
+Run local verification:
 
 ```bash
 ./scripts/verify.sh
@@ -211,7 +211,7 @@ It performs:
 - 25 React/Vitest tests
 - strict client TypeScript and production build
 
-The PostgreSQL test harness uses, in order:
+The PostgreSQL test harness looks for binaries in this order:
 
 1. `POSTGRES_HOME`
 2. `POSTGRES_ARCHIVE`
@@ -225,7 +225,7 @@ No SQLite fallback or database mock is used.
 - Require TLS at the external edge outside local development.
 - Configure real email delivery before requiring verification, magic links, resets, or email MFA.
 - Back up PostgreSQL, not individual application files.
-- Treat audit records as sensitive security data and choose retention accordingly.
+- Treat audit records as sensitive data and choose retention accordingly.
 - API-key secrets are reveal-once values; only hashes are persisted.
 - Session inventory endpoints return opaque row IDs for revocation and never return raw session tokens.
 
@@ -234,4 +234,3 @@ More detail:
 - [Operations and backups](docs/operations.md)
 - [Caddy and multi-application routing](docs/caddy.md)
 - [Testing with PostgreSQL 18.4](docs/testing.md)
-- [Final UI and API integration audit](UI_AUDIT.md)
