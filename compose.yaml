@@ -1,0 +1,97 @@
+name: gatehouse
+
+services:
+  postgres:
+    image: postgres:18.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gatehouse
+      POSTGRES_USER: gatehouse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gatehouse -d gatehouse"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [auth-network]
+
+  auth-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      APP_NAME: ${APP_NAME:-Gatehouse}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://app.localhost}
+      DATABASE_URL: postgresql://gatehouse:${POSTGRES_PASSWORD}@postgres:5432/gatehouse
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
+      RUN_MIGRATIONS: "true"
+      TRUST_PROXY_HEADERS: "true"
+      TRUSTED_IP_HEADERS: "X-Forwarded-For,X-Real-IP,CF-Connecting-IP"
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://app.localhost}
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-http://app.localhost}
+      REQUIRE_EMAIL_VERIFICATION: ${REQUIRE_EMAIL_VERIFICATION:-false}
+      ENABLE_HIBP: ${ENABLE_HIBP:-true}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      MAIL_WEBHOOK_URL: ${MAIL_WEBHOOK_URL:-}
+      MAIL_WEBHOOK_TOKEN: ${MAIL_WEBHOOK_TOKEN:-}
+      EMAIL_FROM: ${EMAIL_FROM:-Gatehouse <noreply@example.invalid>}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?Set SEED_ADMIN_PASSWORD in .env}
+      SEED_DEFAULT_APPLICATION: "true"
+      DEFAULT_APPLICATION_HOST: ${DEFAULT_APPLICATION_HOST:-app.localhost}
+      DEFAULT_APPLICATION_UPSTREAM: http://app:80
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3001/api/ready >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks: [auth-network]
+
+  app:
+    image: traefik/whoami:v1.10.4
+    restart: unless-stopped
+    networks: [auth-network]
+
+  caddy:
+    image: caddy:2.11.4-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      AUTH_SERVER: http://auth-server:3001
+      UPSTREAM_APP: app:80
+      PROTECTED_APPLICATION: default-app
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      auth-server:
+        condition: service_healthy
+      app:
+        condition: service_started
+    networks: [auth-network]
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  auth-network:
+    driver: bridge

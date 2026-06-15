@@ -1,0 +1,3 @@
+`$object.innerHTML = $value` where {
+  register_diagnostic(span=`$object.innerHTML`, message="Do not write raw HTML. Render a React state instead.")
+}

@@ -1,0 +1,3 @@
+`"use client"` where {
+  register_diagnostic(span=`"use client"`, message="This is a Vite SPA; React Server Component directives do not belong here.")
+}

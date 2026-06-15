@@ -1,0 +1,3 @@
+`window.confirm($args)` where {
+  register_diagnostic(span=`window.confirm`, message="Use the accessible ConfirmActionDialog component instead of window.confirm().")
+}
