@@ -2,53 +2,16 @@
 
 Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway built with Better Auth, Hono, React, and Caddy. It protects upstream applications from one admin console and stores authentication, policy, sessions, API keys, and audit history in PostgreSQL.
 
-## What is implemented
+## Core features
 
-### Authentication
-
-- Email/password sign-in with verification and password reset delivery hooks
-- Google and GitHub OAuth when credentials are configured; unavailable providers are hidden from the UI
-- Same-email account linking with connect/disconnect controls, different-email rejection, and last-method protection
-- The public-signup switch applies to every user-creation path, including OAuth callbacks, OTP, and magic links
-- Magic-link and email-OTP sign-in
-- Passkeys with required user verification
-- TOTP, email second factor, recovery codes, trusted devices, QR enrollment, rotation, and disable controls
-- Have I Been Pwned password checks and Cloudflare Turnstile support
-- PostgreSQL-backed rate limiting
-- Better Auth admin operations, impersonation, bans, sessions, and API keys
-- Session assurance metadata (`authMethod` and `mfaVerifiedAt`) so MFA policy checks the current session
-
-### Protected applications and access policy
-
-- Application registry with stable slugs, domains, upstream URLs, public routes, and health checks
-- Host or explicit application resolution in `/api/verify`
-- Role, email-domain, IPv4/IPv6 CIDR, MFA, and maximum-session-age policy
-- Per-user allow/deny grants in the policy engine
-- Policy simulator in the admin console
-- Trusted identity headers for upstream applications
-- Caller-supplied identity headers stripped by Caddy before authorization
-- Browser sessions, bearer sessions, and API-key authentication
-
-### Admin console
-
-- Operational overview for users, sessions, sign-ins, denied decisions, application health, API-key status, and recent events
-- Application and policy editor
-- User inspector with accounts, passkeys, sessions, API keys, grants, and activity
-- Global session inventory and revocation without exposing raw tokens
-- API-key management
-- Searchable audit log with severity/outcome filters, before/after data, and CSV export
-- Security-posture page
-- Safe runtime settings separated from deployment secrets
-- Command search, responsive sidebar, light/dark modes, route-level code splitting, and OKLCH colors
-
-### PostgreSQL and operations
-
-- One PostgreSQL database for Better Auth and Gatehouse control-plane data
-- Drizzle schema as the database source of truth, generated SQL migrations, and a PostgreSQL advisory migration lock
-- Readiness and liveness endpoints
-- Structured immutable audit events with configurable retention cleanup
-- Docker multi-stage production image and Compose deployment
-- Real PostgreSQL integration tests using the supplied PostgreSQL 18.4 binary distribution
+- Email/password, OAuth, magic link, OTP, passkey, and MFA sign-in through Better Auth
+- Account linking limited to verified same-email providers
+- Forward-auth endpoint for Caddy at `/api/verify`
+- Application registry with domains, upstream URLs, public routes, health checks, and stable slugs
+- Access policy for roles, email domains, CIDR ranges, MFA, session age, and per-user grants
+- Admin console for applications, users, sessions, API keys, audit logs, and runtime settings
+- PostgreSQL-backed sessions, policy, audit events, rate limits, and migrations
+- Docker Compose setup with Caddy, Gatehouse, PostgreSQL, and a sample protected upstream
 
 ## Architecture
 
