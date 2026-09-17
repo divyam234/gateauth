@@ -6,7 +6,7 @@ http://app.localhost {
     # Gatehouse owns its SPA and Better Auth API routes on the protected host.
     @gatehouse path /login /verify-otp /two-factor /dashboard /admin /admin/* /api/auth/* /api/public/* /api/admin/* /api/health /api/ready /assets/* /favicon.svg
     handle @gatehouse {
-        reverse_proxy {$AUTH_SERVER:http://auth-server:3001}
+        reverse_proxy {$AUTH_SERVER:http://auth-server:8080}
     }
 
     # Remove caller-supplied identity headers before the auth subrequest.
@@ -21,7 +21,7 @@ http://app.localhost {
     request_header -X-Auth-Public
 
     handle {
-        forward_auth {$AUTH_SERVER:http://auth-server:3001} {
+        forward_auth {$AUTH_SERVER:http://auth-server:8080} {
             uri /api/verify?application={$PROTECTED_APPLICATION:default-app}
             copy_headers X-Auth-User-Id X-Auth-User-Email X-Auth-User-Name X-Auth-User-Role X-Auth-MFA X-Auth-Method X-Auth-Application-Id X-Auth-Application-Slug X-Auth-Public X-Auth-Reason
         }

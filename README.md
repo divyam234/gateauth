@@ -76,7 +76,7 @@ bun run dev:client
 
 Client routes live in `client/src/routes`. UI primitives live in `client/src/components/ui` and are managed with the shadcn CLI. Feature components compose those primitives instead of reimplementing controls. The TanStack Router Vite plugin generates the typed route tree during development, tests, and production builds; the Router CLI is not installed. Biome is the only client formatter and linter; run `bun run --cwd client check` before committing.
 
-Vite proxies `/api/auth`, `/api/verify`, and `/api/admin` to `http://localhost:3001`.
+Vite proxies `/api/auth`, `/api/verify`, and `/api/admin` to `http://localhost:8080`.
 
 ## Database schema and migrations
 

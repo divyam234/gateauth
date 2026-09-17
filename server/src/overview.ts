@@ -34,19 +34,19 @@ export async function getOverview() {
     await Promise.all([
       db.execute<CountRow>(sql`
         SELECT
-          (SELECT count(*)::int FROM "user") AS users,
-          (SELECT count(*)::int FROM "session" WHERE "expiresAt" > now()) AS active_sessions,
-          (SELECT count(*)::int FROM "user" WHERE COALESCE("twoFactorEnabled", false)) AS mfa_users,
-          (SELECT count(DISTINCT "userId")::int FROM passkey) AS passkey_users,
-          (SELECT count(*)::int FROM apikey WHERE COALESCE(enabled, true) AND ("expiresAt" IS NULL OR "expiresAt" > now())) AS active_api_keys,
-          (SELECT count(*)::int FROM apikey WHERE "expiresAt" BETWEEN now() AND now() + interval '7 days') AS expiring_api_keys
+          (SELECT count(*)::int FROM "gatehouse"."user") AS users,
+          (SELECT count(*)::int FROM "gatehouse"."session" WHERE "expiresAt" > now()) AS active_sessions,
+          (SELECT count(*)::int FROM "gatehouse"."user" WHERE COALESCE("twoFactorEnabled", false)) AS mfa_users,
+          (SELECT count(DISTINCT "userId")::int FROM "gatehouse"."passkey") AS passkey_users,
+          (SELECT count(*)::int FROM "gatehouse"."apikey" WHERE COALESCE(enabled, true) AND ("expiresAt" IS NULL OR "expiresAt" > now())) AS active_api_keys,
+          (SELECT count(*)::int FROM "gatehouse"."apikey" WHERE "expiresAt" BETWEEN now() AND now() + interval '7 days') AS expiring_api_keys
       `),
       db.execute<ActivityRow>(sql`
         SELECT
           count(*) FILTER (WHERE action LIKE 'auth.sign_in%' AND created_at > now() - interval '24 hours')::int AS sign_ins,
           count(*) FILTER (WHERE outcome = 'denied' AND created_at > now() - interval '24 hours')::int AS denied,
           count(*) FILTER (WHERE severity = 'critical' AND created_at > now() - interval '7 days')::int AS critical
-        FROM audit_events
+        FROM "gatehouse"."audit_events"
       `),
       db.execute<TrendRow>(sql`
         WITH days AS (
@@ -56,14 +56,14 @@ export async function getOverview() {
           count(a.id) FILTER (WHERE a.action LIKE 'auth.sign_in%')::int AS sign_ins,
           count(a.id) FILTER (WHERE a.outcome = 'denied')::int AS denied
         FROM days
-        LEFT JOIN audit_events a ON a.created_at >= days.day AND a.created_at < days.day + interval '1 day'
+        LEFT JOIN "gatehouse"."audit_events" a ON a.created_at >= days.day AND a.created_at < days.day + interval '1 day'
         GROUP BY days.day ORDER BY days.day
       `),
       db.execute<ApplicationHealthRow>(sql`
         SELECT count(*)::int AS total,
           count(*) FILTER (WHERE last_health_status='healthy')::int AS healthy,
           count(*) FILTER (WHERE last_health_status='unhealthy')::int AS unhealthy
-        FROM applications
+        FROM "gatehouse"."applications"
       `),
       queryAuditEvents({ limit: 8 }),
     ]);

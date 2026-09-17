@@ -24,7 +24,7 @@ reports.example.com {
     request_header -X-Auth-MFA
     request_header -X-Auth-Method
 
-    forward_auth gatehouse:3001 {
+    forward_auth gatehouse:8080 {
         uri /api/verify?application=reports
         copy_headers X-Auth-User-Id X-Auth-User-Email X-Auth-User-Name X-Auth-User-Role X-Auth-MFA X-Auth-Method X-Auth-Application-Id X-Auth-Application-Slug X-Auth-Public X-Auth-Reason
     }

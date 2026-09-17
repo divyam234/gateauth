@@ -21,7 +21,7 @@ function csvFromEnv(name: string, fallback: string[]): string[] {
     .filter(Boolean);
 }
 
-const baseURL = process.env.BETTER_AUTH_URL || "http://localhost:3001";
+const baseURL = process.env.BETTER_AUTH_URL || "http://localhost:8080";
 const secret = process.env.BETTER_AUTH_SECRET || "development-secret-change-before-production";
 
 if (isProduction && secret === "development-secret-change-before-production") {
@@ -31,7 +31,7 @@ if (isProduction && secret === "development-secret-change-before-production") {
 export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   isProduction,
-  port: numberFromEnv("PORT", 3001),
+  port: numberFromEnv("PORT", 8080),
   appName: process.env.APP_NAME || "Gatehouse",
   baseURL,
   secret,

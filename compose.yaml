@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
-      PORT: 3001
+      PORT: 8080
       APP_NAME: ${APP_NAME:-Gatehouse}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://app.localhost}
@@ -54,7 +54,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "bun", "-e", "if (!(await fetch('http://127.0.0.1:3001/api/ready')).ok) throw new Error('not ready')"]
+      test: ["CMD", "bun", "-e", "if (!(await fetch('http://127.0.0.1:8080/api/ready')).ok) throw new Error('not ready')"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -73,7 +73,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      AUTH_SERVER: http://auth-server:3001
+      AUTH_SERVER: http://auth-server:8080
       UPSTREAM_APP: app:80
       PROTECTED_APPLICATION: default-app
     volumes:

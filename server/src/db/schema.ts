@@ -6,7 +6,7 @@ import {
   index,
   integer,
   jsonb,
-  pgTable,
+  pgSchema,
   text,
   timestamp,
   unique,
@@ -15,9 +15,11 @@ import {
 
 const timestampTz = (name: string) => timestamp(name, { withTimezone: true, mode: "date" });
 
+export const gatehouseSchema = pgSchema("gatehouse");
+
 // Better Auth tables. The physical table/column names intentionally preserve the
 // existing Gatehouse schema while the TypeScript keys match Better Auth's models.
-export const user = pgTable("user", {
+export const user = gatehouseSchema.table("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -32,7 +34,7 @@ export const user = pgTable("user", {
   banExpires: timestampTz("banExpires"),
 });
 
-export const session = pgTable(
+export const session = gatehouseSchema.table(
   "session",
   {
     id: text("id").primaryKey(),
@@ -57,7 +59,7 @@ export const session = pgTable(
   ],
 );
 
-export const account = pgTable(
+export const account = gatehouseSchema.table(
   "account",
   {
     id: text("id").primaryKey(),
@@ -79,7 +81,7 @@ export const account = pgTable(
   (table) => [index("account_userId_idx").on(table.userId)],
 );
 
-export const verification = pgTable(
+export const verification = gatehouseSchema.table(
   "verification",
   {
     id: text("id").primaryKey(),
@@ -92,7 +94,7 @@ export const verification = pgTable(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const passkey = pgTable(
+export const passkey = gatehouseSchema.table(
   "passkey",
   {
     id: text("id").primaryKey(),
@@ -115,7 +117,7 @@ export const passkey = pgTable(
   ],
 );
 
-export const twoFactor = pgTable(
+export const twoFactor = gatehouseSchema.table(
   "twoFactor",
   {
     id: text("id").primaryKey(),
@@ -135,7 +137,7 @@ export const twoFactor = pgTable(
   ],
 );
 
-export const apikey = pgTable(
+export const apikey = gatehouseSchema.table(
   "apikey",
   {
     id: text("id").primaryKey(),
@@ -168,14 +170,14 @@ export const apikey = pgTable(
   ],
 );
 
-export const rateLimit = pgTable("rateLimit", {
+export const rateLimit = gatehouseSchema.table("rateLimit", {
   id: text("id").primaryKey(),
   key: text("key").notNull().unique(),
   count: integer("count").notNull(),
   lastRequest: bigint("lastRequest", { mode: "number" }).notNull(),
 });
 
-export const authSettings = pgTable("auth_settings", {
+export const authSettings = gatehouseSchema.table("auth_settings", {
   key: text("key").primaryKey(),
   value: jsonb("value").$type<unknown>().notNull(),
   isSecret: boolean("is_secret").notNull().default(false),
@@ -183,7 +185,7 @@ export const authSettings = pgTable("auth_settings", {
   updatedAt: timestampTz("updated_at").notNull().defaultNow(),
 });
 
-export const applications = pgTable(
+export const applications = gatehouseSchema.table(
   "applications",
   {
     id: text("id").primaryKey(),
@@ -212,7 +214,7 @@ export const applications = pgTable(
   ],
 );
 
-export const applicationDomains = pgTable(
+export const applicationDomains = gatehouseSchema.table(
   "application_domains",
   {
     id: text("id").primaryKey(),
@@ -229,7 +231,7 @@ export const applicationDomains = pgTable(
   ],
 );
 
-export const applicationRoutes = pgTable(
+export const applicationRoutes = gatehouseSchema.table(
   "application_routes",
   {
     id: text("id").primaryKey(),
@@ -249,7 +251,7 @@ export const applicationRoutes = pgTable(
   ],
 );
 
-export const accessPolicies = pgTable(
+export const accessPolicies = gatehouseSchema.table(
   "access_policies",
   {
     id: text("id").primaryKey(),
@@ -280,7 +282,7 @@ export const accessPolicies = pgTable(
   ],
 );
 
-export const applicationUserGrants = pgTable(
+export const applicationUserGrants = gatehouseSchema.table(
   "application_user_grants",
   {
     id: text("id").primaryKey(),
@@ -305,7 +307,7 @@ export const applicationUserGrants = pgTable(
   ],
 );
 
-export const auditEvents = pgTable(
+export const auditEvents = gatehouseSchema.table(
   "audit_events",
   {
     id: text("id").primaryKey().default(sql`gen_random_uuid()::text`),
@@ -338,7 +340,7 @@ export const auditEvents = pgTable(
   ],
 );
 
-export const webhooks = pgTable("webhooks", {
+export const webhooks = gatehouseSchema.table("webhooks", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   url: text("url").notNull(),
@@ -349,7 +351,7 @@ export const webhooks = pgTable("webhooks", {
   updatedAt: timestampTz("updated_at").notNull().defaultNow(),
 });
 
-export const webhookDeliveries = pgTable(
+export const webhookDeliveries = gatehouseSchema.table(
   "webhook_deliveries",
   {
     id: text("id").primaryKey(),

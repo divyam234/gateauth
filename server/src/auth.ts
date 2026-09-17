@@ -74,7 +74,7 @@ export const auth = betterAuth({
   baseURL: env.baseURL,
   basePath: "/api/auth",
   secret: env.secret,
-  database: drizzleAdapter(db, { provider: "pg", schema }),
+  database: drizzleAdapter(db, { provider: "pg", schema, schemaName: "gatehouse" }),
 
   emailAndPassword: {
     enabled: true,

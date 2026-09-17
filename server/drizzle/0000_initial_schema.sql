@@ -1,4 +1,6 @@
-CREATE TABLE "access_policies" (
+CREATE SCHEMA "gatehouse";
+
+CREATE TABLE "gatehouse"."access_policies" (
 	"id" text PRIMARY KEY NOT NULL,
 	"application_id" text NOT NULL,
 	"name" text NOT NULL,
@@ -11,10 +13,10 @@ CREATE TABLE "access_policies" (
 	"session_max_age_seconds" integer,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "access_policies_session_max_age_seconds_check" CHECK ("access_policies"."session_max_age_seconds" IS NULL OR "access_policies"."session_max_age_seconds" >= 60)
+	CONSTRAINT "access_policies_session_max_age_seconds_check" CHECK ("gatehouse"."access_policies"."session_max_age_seconds" IS NULL OR "gatehouse"."access_policies"."session_max_age_seconds" >= 60)
 );
---> statement-breakpoint
-CREATE TABLE "account" (
+
+CREATE TABLE "gatehouse"."account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"accountId" text NOT NULL,
 	"providerId" text NOT NULL,
@@ -29,8 +31,8 @@ CREATE TABLE "account" (
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone NOT NULL
 );
---> statement-breakpoint
-CREATE TABLE "apikey" (
+
+CREATE TABLE "gatehouse"."apikey" (
 	"id" text PRIMARY KEY NOT NULL,
 	"configId" text NOT NULL,
 	"name" text,
@@ -54,16 +56,16 @@ CREATE TABLE "apikey" (
 	"permissions" text,
 	"metadata" text
 );
---> statement-breakpoint
-CREATE TABLE "application_domains" (
+
+CREATE TABLE "gatehouse"."application_domains" (
 	"id" text PRIMARY KEY NOT NULL,
 	"application_id" text NOT NULL,
 	"hostname" text NOT NULL,
 	"is_primary" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
---> statement-breakpoint
-CREATE TABLE "application_routes" (
+
+CREATE TABLE "gatehouse"."application_routes" (
 	"id" text PRIMARY KEY NOT NULL,
 	"application_id" text NOT NULL,
 	"path_pattern" text NOT NULL,
@@ -71,8 +73,8 @@ CREATE TABLE "application_routes" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "application_routes_application_id_path_pattern_unique" UNIQUE("application_id","path_pattern")
 );
---> statement-breakpoint
-CREATE TABLE "application_user_grants" (
+
+CREATE TABLE "gatehouse"."application_user_grants" (
 	"id" text PRIMARY KEY NOT NULL,
 	"application_id" text NOT NULL,
 	"user_id" text NOT NULL,
@@ -81,10 +83,10 @@ CREATE TABLE "application_user_grants" (
 	"created_by" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "application_user_grants_application_id_user_id_unique" UNIQUE("application_id","user_id"),
-	CONSTRAINT "application_user_grants_effect_check" CHECK ("application_user_grants"."effect" IN ('allow', 'deny'))
+	CONSTRAINT "application_user_grants_effect_check" CHECK ("gatehouse"."application_user_grants"."effect" IN ('allow', 'deny'))
 );
---> statement-breakpoint
-CREATE TABLE "applications" (
+
+CREATE TABLE "gatehouse"."applications" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"slug" text NOT NULL,
@@ -98,10 +100,10 @@ CREATE TABLE "applications" (
 	"last_health_latency_ms" integer,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "applications_last_health_status_check" CHECK ("applications"."last_health_status" IN ('unknown', 'healthy', 'unhealthy'))
+	CONSTRAINT "applications_last_health_status_check" CHECK ("gatehouse"."applications"."last_health_status" IN ('unknown', 'healthy', 'unhealthy'))
 );
---> statement-breakpoint
-CREATE TABLE "audit_events" (
+
+CREATE TABLE "gatehouse"."audit_events" (
 	"id" text PRIMARY KEY DEFAULT gen_random_uuid()::text NOT NULL,
 	"actor_user_id" text,
 	"action" text NOT NULL,
@@ -117,19 +119,19 @@ CREATE TABLE "audit_events" (
 	"before_data" jsonb,
 	"after_data" jsonb,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "audit_events_outcome_check" CHECK ("audit_events"."outcome" IN ('success', 'failure', 'denied')),
-	CONSTRAINT "audit_events_severity_check" CHECK ("audit_events"."severity" IN ('info', 'warning', 'critical'))
+	CONSTRAINT "audit_events_outcome_check" CHECK ("gatehouse"."audit_events"."outcome" IN ('success', 'failure', 'denied')),
+	CONSTRAINT "audit_events_severity_check" CHECK ("gatehouse"."audit_events"."severity" IN ('info', 'warning', 'critical'))
 );
---> statement-breakpoint
-CREATE TABLE "auth_settings" (
+
+CREATE TABLE "gatehouse"."auth_settings" (
 	"key" text PRIMARY KEY NOT NULL,
 	"value" jsonb NOT NULL,
 	"is_secret" boolean DEFAULT false NOT NULL,
 	"updated_by" text,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
---> statement-breakpoint
-CREATE TABLE "passkey" (
+
+CREATE TABLE "gatehouse"."passkey" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text,
 	"publicKey" text NOT NULL,
@@ -142,16 +144,16 @@ CREATE TABLE "passkey" (
 	"createdAt" timestamp with time zone,
 	"aaguid" text
 );
---> statement-breakpoint
-CREATE TABLE "rateLimit" (
+
+CREATE TABLE "gatehouse"."rateLimit" (
 	"id" text PRIMARY KEY NOT NULL,
 	"key" text NOT NULL,
 	"count" integer NOT NULL,
 	"lastRequest" bigint NOT NULL,
 	CONSTRAINT "rateLimit_key_unique" UNIQUE("key")
 );
---> statement-breakpoint
-CREATE TABLE "session" (
+
+CREATE TABLE "gatehouse"."session" (
 	"id" text PRIMARY KEY NOT NULL,
 	"expiresAt" timestamp with time zone NOT NULL,
 	"token" text NOT NULL,
@@ -165,16 +167,16 @@ CREATE TABLE "session" (
 	"mfaVerifiedAt" timestamp with time zone,
 	CONSTRAINT "session_token_unique" UNIQUE("token")
 );
---> statement-breakpoint
-CREATE TABLE "twoFactor" (
+
+CREATE TABLE "gatehouse"."twoFactor" (
 	"id" text PRIMARY KEY NOT NULL,
 	"secret" text NOT NULL,
 	"backupCodes" text NOT NULL,
 	"userId" text NOT NULL,
 	"verified" boolean
 );
---> statement-breakpoint
-CREATE TABLE "user" (
+
+CREATE TABLE "gatehouse"."user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"email" text NOT NULL,
@@ -189,8 +191,8 @@ CREATE TABLE "user" (
 	"banExpires" timestamp with time zone,
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
---> statement-breakpoint
-CREATE TABLE "verification" (
+
+CREATE TABLE "gatehouse"."verification" (
 	"id" text PRIMARY KEY NOT NULL,
 	"identifier" text NOT NULL,
 	"value" text NOT NULL,
@@ -198,8 +200,8 @@ CREATE TABLE "verification" (
 	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
 	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL
 );
---> statement-breakpoint
-CREATE TABLE "webhook_deliveries" (
+
+CREATE TABLE "gatehouse"."webhook_deliveries" (
 	"id" text PRIMARY KEY NOT NULL,
 	"webhook_id" text NOT NULL,
 	"audit_event_id" text,
@@ -210,8 +212,8 @@ CREATE TABLE "webhook_deliveries" (
 	"next_attempt_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
---> statement-breakpoint
-CREATE TABLE "webhooks" (
+
+CREATE TABLE "gatehouse"."webhooks" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"url" text NOT NULL,
@@ -221,43 +223,43 @@ CREATE TABLE "webhooks" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
---> statement-breakpoint
-ALTER TABLE "access_policies" ADD CONSTRAINT "access_policies_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "account" ADD CONSTRAINT "account_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_domains" ADD CONSTRAINT "application_domains_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_routes" ADD CONSTRAINT "application_routes_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_user_grants" ADD CONSTRAINT "application_user_grants_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."applications"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_user_grants" ADD CONSTRAINT "application_user_grants_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "application_user_grants" ADD CONSTRAINT "application_user_grants_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "audit_events" ADD CONSTRAINT "audit_events_actor_user_id_user_id_fk" FOREIGN KEY ("actor_user_id") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "audit_events" ADD CONSTRAINT "audit_events_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "public"."applications"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "auth_settings" ADD CONSTRAINT "auth_settings_updated_by_user_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."user"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "passkey" ADD CONSTRAINT "passkey_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "session" ADD CONSTRAINT "session_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "twoFactor" ADD CONSTRAINT "twoFactor_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "webhook_deliveries" ADD CONSTRAINT "webhook_deliveries_webhook_id_webhooks_id_fk" FOREIGN KEY ("webhook_id") REFERENCES "public"."webhooks"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "webhook_deliveries" ADD CONSTRAINT "webhook_deliveries_audit_event_id_audit_events_id_fk" FOREIGN KEY ("audit_event_id") REFERENCES "public"."audit_events"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "access_policies_application_id_priority_idx" ON "access_policies" USING btree ("application_id","enabled","priority");--> statement-breakpoint
-CREATE INDEX "account_userId_idx" ON "account" USING btree ("userId");--> statement-breakpoint
-CREATE INDEX "apikey_configId_idx" ON "apikey" USING btree ("configId");--> statement-breakpoint
-CREATE INDEX "apikey_referenceId_idx" ON "apikey" USING btree ("referenceId");--> statement-breakpoint
-CREATE INDEX "apikey_key_idx" ON "apikey" USING btree ("key");--> statement-breakpoint
-CREATE UNIQUE INDEX "application_domains_hostname_unique" ON "application_domains" USING btree ("hostname");--> statement-breakpoint
-CREATE INDEX "application_domains_application_id_idx" ON "application_domains" USING btree ("application_id");--> statement-breakpoint
-CREATE INDEX "application_routes_application_id_idx" ON "application_routes" USING btree ("application_id");--> statement-breakpoint
-CREATE INDEX "application_user_grants_user_id_idx" ON "application_user_grants" USING btree ("user_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "applications_slug_unique" ON "applications" USING btree ("slug");--> statement-breakpoint
-CREATE INDEX "audit_events_created_at_idx" ON "audit_events" USING btree ("created_at" DESC NULLS LAST);--> statement-breakpoint
-CREATE INDEX "audit_events_actor_user_id_idx" ON "audit_events" USING btree ("actor_user_id");--> statement-breakpoint
-CREATE INDEX "audit_events_application_id_idx" ON "audit_events" USING btree ("application_id");--> statement-breakpoint
-CREATE INDEX "audit_events_action_idx" ON "audit_events" USING btree ("action");--> statement-breakpoint
-CREATE INDEX "audit_events_outcome_severity_idx" ON "audit_events" USING btree ("outcome","severity");--> statement-breakpoint
-CREATE INDEX "audit_events_metadata_gin_idx" ON "audit_events" USING gin ("metadata");--> statement-breakpoint
-CREATE INDEX "passkey_userId_idx" ON "passkey" USING btree ("userId");--> statement-breakpoint
-CREATE INDEX "passkey_credentialID_idx" ON "passkey" USING btree ("credentialID");--> statement-breakpoint
-CREATE INDEX "session_userId_idx" ON "session" USING btree ("userId");--> statement-breakpoint
-CREATE INDEX "session_mfa_verified_at_idx" ON "session" USING btree ("mfaVerifiedAt") WHERE "session"."mfaVerifiedAt" IS NOT NULL;--> statement-breakpoint
-CREATE INDEX "twoFactor_secret_idx" ON "twoFactor" USING btree ("secret");--> statement-breakpoint
-CREATE INDEX "twoFactor_userId_idx" ON "twoFactor" USING btree ("userId");--> statement-breakpoint
-CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");--> statement-breakpoint
-CREATE INDEX "webhook_deliveries_retry_idx" ON "webhook_deliveries" USING btree ("next_attempt_at") WHERE "webhook_deliveries"."delivered_at" IS NULL;
+
+ALTER TABLE "gatehouse"."access_policies" ADD CONSTRAINT "access_policies_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "gatehouse"."applications"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."account" ADD CONSTRAINT "account_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "gatehouse"."user"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."application_domains" ADD CONSTRAINT "application_domains_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "gatehouse"."applications"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."application_routes" ADD CONSTRAINT "application_routes_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "gatehouse"."applications"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."application_user_grants" ADD CONSTRAINT "application_user_grants_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "gatehouse"."applications"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."application_user_grants" ADD CONSTRAINT "application_user_grants_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "gatehouse"."user"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."application_user_grants" ADD CONSTRAINT "application_user_grants_created_by_user_id_fk" FOREIGN KEY ("created_by") REFERENCES "gatehouse"."user"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "gatehouse"."audit_events" ADD CONSTRAINT "audit_events_actor_user_id_user_id_fk" FOREIGN KEY ("actor_user_id") REFERENCES "gatehouse"."user"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "gatehouse"."audit_events" ADD CONSTRAINT "audit_events_application_id_applications_id_fk" FOREIGN KEY ("application_id") REFERENCES "gatehouse"."applications"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "gatehouse"."auth_settings" ADD CONSTRAINT "auth_settings_updated_by_user_id_fk" FOREIGN KEY ("updated_by") REFERENCES "gatehouse"."user"("id") ON DELETE set null ON UPDATE no action;
+ALTER TABLE "gatehouse"."passkey" ADD CONSTRAINT "passkey_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "gatehouse"."user"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."session" ADD CONSTRAINT "session_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "gatehouse"."user"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."twoFactor" ADD CONSTRAINT "twoFactor_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "gatehouse"."user"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."webhook_deliveries" ADD CONSTRAINT "webhook_deliveries_webhook_id_webhooks_id_fk" FOREIGN KEY ("webhook_id") REFERENCES "gatehouse"."webhooks"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "gatehouse"."webhook_deliveries" ADD CONSTRAINT "webhook_deliveries_audit_event_id_audit_events_id_fk" FOREIGN KEY ("audit_event_id") REFERENCES "gatehouse"."audit_events"("id") ON DELETE set null ON UPDATE no action;
+CREATE INDEX "access_policies_application_id_priority_idx" ON "gatehouse"."access_policies" USING btree ("application_id","enabled","priority");
+CREATE INDEX "account_userId_idx" ON "gatehouse"."account" USING btree ("userId");
+CREATE INDEX "apikey_configId_idx" ON "gatehouse"."apikey" USING btree ("configId");
+CREATE INDEX "apikey_referenceId_idx" ON "gatehouse"."apikey" USING btree ("referenceId");
+CREATE INDEX "apikey_key_idx" ON "gatehouse"."apikey" USING btree ("key");
+CREATE UNIQUE INDEX "application_domains_hostname_unique" ON "gatehouse"."application_domains" USING btree ("hostname");
+CREATE INDEX "application_domains_application_id_idx" ON "gatehouse"."application_domains" USING btree ("application_id");
+CREATE INDEX "application_routes_application_id_idx" ON "gatehouse"."application_routes" USING btree ("application_id");
+CREATE INDEX "application_user_grants_user_id_idx" ON "gatehouse"."application_user_grants" USING btree ("user_id");
+CREATE UNIQUE INDEX "applications_slug_unique" ON "gatehouse"."applications" USING btree ("slug");
+CREATE INDEX "audit_events_created_at_idx" ON "gatehouse"."audit_events" USING btree ("created_at" DESC NULLS LAST);
+CREATE INDEX "audit_events_actor_user_id_idx" ON "gatehouse"."audit_events" USING btree ("actor_user_id");
+CREATE INDEX "audit_events_application_id_idx" ON "gatehouse"."audit_events" USING btree ("application_id");
+CREATE INDEX "audit_events_action_idx" ON "gatehouse"."audit_events" USING btree ("action");
+CREATE INDEX "audit_events_outcome_severity_idx" ON "gatehouse"."audit_events" USING btree ("outcome","severity");
+CREATE INDEX "audit_events_metadata_gin_idx" ON "gatehouse"."audit_events" USING gin ("metadata");
+CREATE INDEX "passkey_userId_idx" ON "gatehouse"."passkey" USING btree ("userId");
+CREATE INDEX "passkey_credentialID_idx" ON "gatehouse"."passkey" USING btree ("credentialID");
+CREATE INDEX "session_userId_idx" ON "gatehouse"."session" USING btree ("userId");
+CREATE INDEX "session_mfa_verified_at_idx" ON "gatehouse"."session" USING btree ("mfaVerifiedAt") WHERE "gatehouse"."session"."mfaVerifiedAt" IS NOT NULL;
+CREATE INDEX "twoFactor_secret_idx" ON "gatehouse"."twoFactor" USING btree ("secret");
+CREATE INDEX "twoFactor_userId_idx" ON "gatehouse"."twoFactor" USING btree ("userId");
+CREATE INDEX "verification_identifier_idx" ON "gatehouse"."verification" USING btree ("identifier");
+CREATE INDEX "webhook_deliveries_retry_idx" ON "gatehouse"."webhook_deliveries" USING btree ("next_attempt_at") WHERE "gatehouse"."webhook_deliveries"."delivered_at" IS NULL;
