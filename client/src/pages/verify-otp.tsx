@@ -7,12 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp"
 import { Spinner } from "@/components/ui/spinner"
 import { sendVerificationOtp, signIn } from "@/lib/auth-client"
+import { validateRedirectTarget } from "@/lib/public-api"
 
 const OTP_SLOTS = [0, 1, 2, 3, 4, 5] as const
 
 export function VerifyOtpPage() {
   const navigate = useNavigate()
-  const { email } = useSearch({ from: "/verify-otp" })
+  const { email, application, redirect } = useSearch({ from: "/verify-otp" })
   const [otp, setOtp] = useState("")
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
@@ -24,6 +25,13 @@ export function VerifyOtpPage() {
       const result = await signIn.emailOtp({ email, otp })
       if (result.error) throw new Error(result.error.message || "Invalid OTP")
       toast.success("Verified successfully")
+      if (application && redirect) {
+        const target = await validateRedirectTarget(application, redirect)
+        if (target) {
+          window.location.assign(target)
+          return
+        }
+      }
       await navigate({ to: "/dashboard" })
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Verification failed")
@@ -110,7 +118,7 @@ export function VerifyOtpPage() {
               type="button"
               variant="link"
               size="xs"
-              onClick={() => void navigate({ to: "/login" })}
+              onClick={() => void navigate({ to: "/login", search: { application, redirect } })}
             >
               <ArrowLeft data-icon="inline-start" aria-hidden="true" />
               Back to sign in

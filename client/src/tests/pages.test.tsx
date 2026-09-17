@@ -35,6 +35,7 @@ vi.mock("@/lib/public-api", () => ({
       config: { allowPublicSignup: publicAuthState.allowPublicSignup },
     },
   }),
+  validateRedirectTarget: vi.fn(async () => null),
 }))
 
 // ── Test wrapper ──────────────────────────────────────

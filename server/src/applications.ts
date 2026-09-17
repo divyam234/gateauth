@@ -40,6 +40,16 @@ export interface ProtectedApplication {
   updatedAt: string;
 }
 
+export function applicationDomainMatches(application: ProtectedApplication, host: string): boolean {
+  const normalizedHost = host.toLowerCase().split(",")[0]?.trim() ?? "";
+  return application.domains.some((domain) => {
+    const normalizedDomain = domain.toLowerCase().trim();
+    return normalizedDomain.startsWith("*.")
+      ? normalizedHost.endsWith(normalizedDomain.slice(1))
+      : normalizedHost === normalizedDomain;
+  });
+}
+
 export interface ApplicationInput {
   name: string;
   slug: string;

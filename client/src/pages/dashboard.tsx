@@ -1,6 +1,15 @@
 import { useNavigate } from "@tanstack/react-router"
-import { Fingerprint, Laptop, LogOut, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react"
-import { useEffect, useState } from "react"
+import {
+  Fingerprint,
+  KeyRound,
+  Laptop,
+  LogOut,
+  Plus,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+} from "lucide-react"
+import { type FormEvent, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { ConfirmActionDialog } from "@/components/confirm-action-dialog"
 import { ConnectedAccounts } from "@/components/security/connected-accounts"
@@ -9,10 +18,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { stopImpersonatingAdminUser } from "@/lib/admin-api"
 import {
   addPasskey,
+  changePassword,
   type PasskeyRecord,
   revokePasskey,
   revokeSession,
@@ -34,8 +45,13 @@ export function DashboardPage() {
   const { data: session, isPending, refetch: refetchSession } = useSession()
   const { data: passkeys, refetch: refetchPasskeys } = useListPasskeys()
   const { data: sessions, refetch: refetchSessions } = useListSessions()
-  const [busyAction, setBusyAction] = useState<"sign-out" | "passkey" | "remove" | null>(null)
+  const [busyAction, setBusyAction] = useState<
+    "sign-out" | "passkey" | "remove" | "password" | null
+  >(null)
   const [removalTarget, setRemovalTarget] = useState<RemovalTarget | null>(null)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
 
   useEffect(() => {
     if (search.accountLinked) {
@@ -72,6 +88,37 @@ export function DashboardPage() {
       await refetchPasskeys()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to add passkey")
+    } finally {
+      setBusyAction(null)
+    }
+  }
+
+  async function handleChangePassword(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (newPassword.length < 12 || newPassword !== confirmPassword) {
+      toast.error(
+        newPassword.length < 12
+          ? "New password must contain at least 12 characters"
+          : "New passwords do not match",
+      )
+      return
+    }
+
+    setBusyAction("password")
+    try {
+      const result = await changePassword({
+        currentPassword,
+        newPassword,
+        revokeOtherSessions: true,
+      })
+      if (result.error) throw new Error(result.error.message || "Failed to change password")
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+      await refetchSessions()
+      toast.success("Password changed")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to change password")
     } finally {
       setBusyAction(null)
     }
@@ -123,6 +170,7 @@ export function DashboardPage() {
   const { user } = session
   const impersonatedBy = session.session.impersonatedBy
   const twoFactorEnabled = user.twoFactorEnabled === true
+  const isAdmin = user.role === "admin"
   const activeDevices = (sessions ?? []).filter((item: UserSessionRecord) => item.isActive)
 
   return (
@@ -152,20 +200,33 @@ export function DashboardPage() {
               <p className="truncate text-sm text-muted-foreground">{user.email}</p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full sm:w-auto"
-            onClick={() => void handleSignOut()}
-            disabled={busyAction === "sign-out"}
-          >
-            {busyAction === "sign-out" ? (
-              <Spinner data-icon="inline-start" />
-            ) : (
-              <LogOut data-icon="inline-start" aria-hidden="true" />
+          <div className="flex w-full gap-2 sm:w-auto">
+            {isAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 sm:flex-none"
+                onClick={() => void navigate({ to: "/admin" })}
+              >
+                <ShieldCheck data-icon="inline-start" aria-hidden="true" />
+                Admin
+              </Button>
             )}
-            {busyAction === "sign-out" ? "Signing out…" : "Sign out"}
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-none"
+              onClick={() => void handleSignOut()}
+              disabled={busyAction === "sign-out"}
+            >
+              {busyAction === "sign-out" ? (
+                <Spinner data-icon="inline-start" />
+              ) : (
+                <LogOut data-icon="inline-start" aria-hidden="true" />
+              )}
+              {busyAction === "sign-out" ? "Signing out…" : "Sign out"}
+            </Button>
+          </div>
         </header>
 
         <section className="grid gap-3 sm:grid-cols-3" aria-label="Account security summary">
@@ -202,6 +263,71 @@ export function DashboardPage() {
             </CardContent>
           </Card>
         </section>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <KeyRound className="size-4" aria-hidden="true" />
+              Change password
+            </CardTitle>
+            <CardDescription>
+              Confirm your current password and choose a new one. Other sessions will be signed out.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form className="grid gap-4" onSubmit={(event) => void handleChangePassword(event)}>
+              <div className="grid gap-1.5">
+                <label className="text-sm font-medium" htmlFor="current-password">
+                  Current password
+                </label>
+                <Input
+                  id="current-password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={currentPassword}
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-1.5">
+                  <label className="text-sm font-medium" htmlFor="new-password">
+                    New password
+                  </label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    autoComplete="new-password"
+                    value={newPassword}
+                    onChange={(event) => setNewPassword(event.target.value)}
+                    minLength={12}
+                    required
+                  />
+                </div>
+                <div className="grid gap-1.5">
+                  <label className="text-sm font-medium" htmlFor="confirm-new-password">
+                    Confirm new password
+                  </label>
+                  <Input
+                    id="confirm-new-password"
+                    type="password"
+                    autoComplete="new-password"
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    minLength={12}
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <Button type="submit" disabled={busyAction === "password"}>
+                  {busyAction === "password" && <Spinner data-icon="inline-start" />}
+                  {busyAction === "password" ? "Changing password…" : "Change password"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
 
         <TwoFactorManager enabled={twoFactorEnabled} onChanged={() => void refetchSession()} />
 

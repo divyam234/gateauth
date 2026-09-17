@@ -3,6 +3,8 @@ import { z } from "zod"
 
 const verifyOtpSearchSchema = z.object({
   email: z.string().trim().default(""),
+  application: z.string().trim().optional(),
+  redirect: z.string().trim().optional(),
 })
 
 export const Route = createFileRoute("/verify-otp")({

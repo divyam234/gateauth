@@ -143,6 +143,32 @@ describe("PostgreSQL integration", () => {
     expect(response.headers.get("x-auth-reason")).toBe("not_authenticated");
   });
 
+  it("redirects unauthenticated forward-auth requests to login with a validated return URL", async () => {
+    const response = await request(`http://localhost/api/verify?application=${applicationId}`, {
+      headers: {
+        "x-forwarded-host": "app.test",
+        "x-forwarded-proto": "https",
+        "x-forwarded-uri": "/private?tab=activity",
+      },
+      redirect: "manual",
+    });
+    expect(response.status).toBe(302);
+    expect(response.headers.get("x-auth-reason")).toBe("not_authenticated");
+    const location = response.headers.get("location");
+    assertPresent(location, "Forward-auth redirect did not include a location");
+    const login = new URL(location);
+    expect(login.pathname).toBe("/login");
+    expect(login.searchParams.get("application")).toBe("test-app");
+    expect(login.searchParams.get("redirect")).toBe("https://app.test/private?tab=activity");
+  });
+
+  it("rejects unregistered public redirect targets", async () => {
+    const response = await request(
+      `http://localhost/api/public/redirect-target?application=${applicationId}&redirect=${encodeURIComponent("https://evil.example/private")}`,
+    );
+    expect(response.status).toBe(400);
+  });
+
   it("authorizes bearer sessions and emits trusted identity headers", async () => {
     const response = await request(`http://localhost/api/verify?application=${applicationId}&path=/private`, {
       headers: bearer(userToken),

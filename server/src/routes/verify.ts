@@ -2,6 +2,7 @@ import { and, eq, gt, isNull, or } from "drizzle-orm";
 import type { BunRouter, RouteContext } from "../router.js";
 import { auth } from "../auth.js";
 import {
+  applicationDomainMatches,
   getApplication,
   getApplicationByHost,
   listApplications,
@@ -33,6 +34,25 @@ function forwardedPath(headers: Headers, fallback: string): string {
     return value.startsWith("http") ? new URL(value).pathname : value.split("?")[0] || "/";
   } catch {
     return "/";
+  }
+}
+
+
+function loginRedirect(application: ProtectedApplication, headers: Headers): string | null {
+  const host = headers.get("x-forwarded-host") || headers.get("host");
+  if (!host || !applicationDomainMatches(application, host)) return null;
+
+  const protocol = headers.get("x-forwarded-proto") === "http" ? "http" : "https";
+  const forwardedUri = headers.get("x-forwarded-uri") || headers.get("x-original-uri") || "/";
+
+  try {
+    const returnTo = new URL(forwardedUri, `${protocol}://${host}`);
+    const login = new URL("/login", env.baseURL);
+    login.searchParams.set("redirect", returnTo.toString());
+    login.searchParams.set("application", application.slug);
+    return login.toString();
+  } catch {
+    return null;
   }
 }
 
@@ -209,10 +229,10 @@ export function registerVerifyRoutes(app: BunRouter): void {
         metadata: { reason: decision.reason, path, method: identity.method },
         ...getRequestAuditMetadata(c.req.raw.headers),
       });
-      return new Response(null, {
-        status: decision.status,
-        headers: { "X-Auth-Reason": decision.reason, "Cache-Control": "no-store" },
-      });
+      const headers = new Headers({ "X-Auth-Reason": decision.reason, "Cache-Control": "no-store" });
+      const redirect = decision.status === 401 ? loginRedirect(application, c.req.raw.headers) : null;
+      if (redirect) headers.set("Location", redirect);
+      return new Response(null, { status: redirect ? 302 : decision.status, headers });
     }
 
     const responseHeaders = new Headers({

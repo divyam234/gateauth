@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router"
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import {
   Eye,
   EyeOff,
@@ -19,8 +19,8 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { authClient, sendVerificationOtp, signIn, signUp } from "@/lib/auth-client"
-import { usePublicAuthConfig } from "@/lib/public-api"
+import { authClient, sendVerificationOtp, signIn, signUp, useSession } from "@/lib/auth-client"
+import { usePublicAuthConfig, validateRedirectTarget } from "@/lib/public-api"
 
 type AuthMode = "signin" | "signup" | "magic-link" | "otp"
 type PendingAction = "credentials" | "github" | "google" | "passkey" | null
@@ -46,6 +46,8 @@ function submitLabel(mode: AuthMode) {
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const search = useSearch({ strict: false }) as { application?: string; redirect?: string }
+  const { data: session, isPending: sessionPending } = useSession()
   const [mode, setMode] = useState<AuthMode>("signin")
   const [showPassword, setShowPassword] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
@@ -73,6 +75,20 @@ export function LoginPage() {
   )
 
   useEffect(() => {
+    if (sessionPending || !session) return
+    void (async () => {
+      if (search.application && search.redirect) {
+        const target = await validateRedirectTarget(search.application, search.redirect)
+        if (target) {
+          window.location.assign(target)
+          return
+        }
+      }
+      await navigate({ to: "/dashboard", replace: true })
+    })()
+  }, [navigate, search.application, search.redirect, session, sessionPending])
+
+  useEffect(() => {
     if (!allowPublicSignup && mode === "signup") setMode("signin")
   }, [allowPublicSignup, mode])
 
@@ -93,6 +109,13 @@ export function LoginPage() {
         const result = await signIn.email({ email: values.email, password: values.password })
         if (result.error) throw new Error(result.error.message || "Invalid credentials")
         toast.success("Signed in successfully")
+        if (search.application && search.redirect) {
+          const target = await validateRedirectTarget(search.application, search.redirect)
+          if (target) {
+            window.location.assign(target)
+            return
+          }
+        }
         await navigate({ to: "/dashboard" })
         return
       }
@@ -106,12 +129,22 @@ export function LoginPage() {
         })
         if (result.error) throw new Error(result.error.message || "Failed to sign up")
         toast.success("Account created successfully")
+        if (search.application && search.redirect) {
+          const target = await validateRedirectTarget(search.application, search.redirect)
+          if (target) {
+            window.location.assign(target)
+            return
+          }
+        }
         await navigate({ to: "/dashboard" })
         return
       }
 
       if (mode === "magic-link") {
-        const result = await authClient.signIn.magicLink({ email: values.email })
+        const result = await authClient.signIn.magicLink({
+          email: values.email,
+          callbackURL: window.location.href,
+        })
         if (result.error) throw new Error(result.error.message || "Failed to send magic link")
         toast.success("Magic link sent. Check your email.")
         return
@@ -120,7 +153,10 @@ export function LoginPage() {
       const result = await sendVerificationOtp({ email: values.email, type: "sign-in" })
       if (result.error) throw new Error(result.error.message || "Failed to send OTP")
       toast.success("OTP sent to your email")
-      await navigate({ to: "/verify-otp", search: { email: values.email } })
+      await navigate({
+        to: "/verify-otp",
+        search: { email: values.email, application: search.application, redirect: search.redirect },
+      })
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Authentication failed")
     } finally {
@@ -133,7 +169,7 @@ export function LoginPage() {
     try {
       const result = await authClient.signIn.social({
         provider,
-        callbackURL: `${window.location.origin}/dashboard`,
+        callbackURL: window.location.href,
       })
       if (result.error) throw new Error(result.error.message || "Social login failed")
     } catch (error) {
@@ -149,6 +185,13 @@ export function LoginPage() {
       const result = await authClient.signIn.passkey()
       if (result.error) throw new Error(result.error.message || "Passkey authentication failed")
       toast.success("Signed in with passkey")
+      if (search.application && search.redirect) {
+        const target = await validateRedirectTarget(search.application, search.redirect)
+        if (target) {
+          window.location.assign(target)
+          return
+        }
+      }
       await navigate({ to: "/dashboard" })
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Passkey authentication failed")
@@ -167,6 +210,14 @@ export function LoginPage() {
     : mode === "signup"
       ? "Enter your details to create your account"
       : "Choose your preferred sign-in method"
+
+  if (sessionPending || session) {
+    return (
+      <main className="flex min-h-screen items-center justify-center">
+        <Spinner className="size-6" />
+      </main>
+    )
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-10 sm:px-6">
