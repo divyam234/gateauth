@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react"
-import { type ComponentType, Suspense, useEffect, useState } from "react"
+import { type ComponentType, type CSSProperties, Suspense, useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -168,93 +168,98 @@ export function AdminLayout() {
   }
 
   return (
-    <SidebarProvider defaultOpen>
-      <div className="flex min-h-screen w-full bg-muted/20">
-        <Sidebar collapsible="icon" className="border-r">
-          <SidebarHeader>
-            <div className="flex items-center gap-2 px-2 py-1.5">
-              <div className="flex size-8 items-center justify-center rounded-xl bg-[linear-gradient(145deg,oklch(0.58_0.22_275),oklch(0.66_0.16_225))] text-white shadow-lg shadow-violet-500/20">
-                <ShieldCheck className="size-4" />
-              </div>
-              <div className="min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
-                <p className="truncate text-sm font-semibold">{branding}</p>
-                <p className="truncate text-[10px] text-muted-foreground">Identity control plane</p>
-              </div>
+    <SidebarProvider
+      defaultOpen
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 64)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as CSSProperties
+      }
+    >
+      <Sidebar collapsible="icon" variant="inset">
+        <SidebarHeader>
+          <div className="flex items-center gap-2 px-2 py-1.5">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
+              <ShieldCheck className="size-4" />
             </div>
-          </SidebarHeader>
-
-          <SidebarSeparator />
-
-          <SidebarContent>
-            <NavigationGroup label="Operate" items={OPERATE_ITEMS} />
-            <NavigationGroup label="Harden" items={HARDEN_ITEMS} />
-          </SidebarContent>
-
-          <SidebarSeparator />
-
-          <SidebarFooter>
-            <div className="flex items-center gap-2 p-1.5 group-data-[collapsible=icon]:justify-center">
-              <Avatar className="size-8">
-                <AvatarFallback className="text-[10px]">
-                  {getInitials(session.user.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-                <p className="truncate text-xs font-medium">{session.user.name}</p>
-                <p className="truncate text-[10px] text-muted-foreground">{session.user.email}</p>
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="group-data-[collapsible=icon]:hidden"
-                aria-label="Sign out"
-                onClick={() => void handleSignOut()}
-              >
-                <LogOut />
-              </Button>
+            <div className="min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
+              <p className="truncate text-sm font-medium">{branding}</p>
+              <p className="truncate text-xs text-muted-foreground">Identity control plane</p>
             </div>
-          </SidebarFooter>
-        </Sidebar>
+          </div>
+        </SidebarHeader>
 
-        <SidebarInset className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/85 px-4 backdrop-blur-xl">
-            <SidebarTrigger />
-            <div className="hidden h-5 w-px bg-border sm:block" />
+        <SidebarSeparator />
+
+        <SidebarContent>
+          <NavigationGroup label="Operate" items={OPERATE_ITEMS} />
+          <NavigationGroup label="Harden" items={HARDEN_ITEMS} />
+        </SidebarContent>
+
+        <SidebarSeparator />
+
+        <SidebarFooter>
+          <div className="flex items-center gap-2 p-1.5 group-data-[collapsible=icon]:justify-center">
+            <Avatar className="size-8">
+              <AvatarFallback className="text-xs">{getInitials(session.user.name)}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+              <p className="truncate text-xs font-medium">{session.user.name}</p>
+              <p className="truncate text-xs text-muted-foreground">{session.user.email}</p>
+            </div>
             <Button
               type="button"
-              variant="outline"
-              className="h-8 w-full max-w-sm justify-start text-muted-foreground"
-              onClick={() => setSearchOpen(true)}
+              variant="ghost"
+              size="icon-sm"
+              className="group-data-[collapsible=icon]:hidden"
+              aria-label="Sign out"
+              onClick={() => void handleSignOut()}
             >
-              <Search className="size-4" />
-              <span className="truncate">Search users, apps, events…</span>
-              <kbd className="ml-auto hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] sm:inline-flex">
-                Ctrl K
-              </kbd>
+              <LogOut />
             </Button>
-            <div className="ml-auto flex items-center gap-2 pr-10">
-              <Badge variant="outline" className="hidden sm:flex">
-                {environment}
-              </Badge>
-              <Badge variant="secondary">admin</Badge>
-            </div>
-          </header>
+          </div>
+        </SidebarFooter>
+      </Sidebar>
 
-          <main className="min-h-[calc(100vh-3.5rem)] overflow-auto">
-            <Suspense
-              fallback={
-                <div className="flex h-64 items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Spinner />
-                  Loading console…
-                </div>
-              }
-            >
-              <Outlet />
-            </Suspense>
-          </main>
-        </SidebarInset>
-      </div>
+      <SidebarInset className="min-w-0 flex-1">
+        <header className="sticky top-0 z-30 flex h-(--header-height) shrink-0 items-center gap-2 border-b bg-background px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+          <SidebarTrigger />
+          <div className="mx-1 hidden h-4 w-px bg-border sm:block" />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full max-w-sm justify-start text-muted-foreground shadow-none"
+            onClick={() => setSearchOpen(true)}
+          >
+            <Search data-icon="inline-start" />
+            <span className="truncate">Search users, apps, events…</span>
+            <kbd className="ml-auto hidden rounded border bg-muted px-1.5 py-0.5 font-mono text-xs sm:inline-flex">
+              Ctrl K
+            </kbd>
+          </Button>
+          <div className="ml-auto flex items-center gap-2">
+            <Badge variant="outline" className="hidden sm:flex">
+              {environment}
+            </Badge>
+            <Badge variant="secondary">Admin</Badge>
+          </div>
+        </header>
+
+        <main className="flex min-h-[calc(100svh-var(--header-height))] flex-1 flex-col">
+          <Suspense
+            fallback={
+              <div className="flex min-h-64 flex-1 items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Spinner />
+                Loading console…
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
+        </main>
+      </SidebarInset>
 
       <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
     </SidebarProvider>

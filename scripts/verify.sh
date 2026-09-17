@@ -4,24 +4,24 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 
 printf '%s\n' '==> Drizzle migration snapshot check'
-(cd "$ROOT/server" && npm run db:check)
+bun run --cwd "$ROOT/server" db:check
 
 printf '%s\n' '==> Server typecheck'
-(cd "$ROOT/server" && npm run typecheck)
+bun run --cwd "$ROOT/server" typecheck
 
 printf '%s\n' '==> Server build'
-(cd "$ROOT/server" && npm run build)
+bun run --cwd "$ROOT/server" build
 
 printf '%s\n' '==> Server tests with PostgreSQL'
-(cd "$ROOT/server" && npm test)
+bun run --cwd "$ROOT/server" test
 
 printf '%s\n' '==> Client Biome check'
-(cd "$ROOT/client" && npm run check)
+bun run --cwd "$ROOT/client" check
 
 printf '%s\n' '==> Client tests'
-(cd "$ROOT/client" && npm test)
+bun run --cwd "$ROOT/client" test
 
 printf '%s\n' '==> Client production build'
-(cd "$ROOT/client" && npm run build)
+bun run --cwd "$ROOT/client" build
 
 printf '%s\n' '==> Gatehouse verification complete'

@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
+import { AdminPage, AdminPageHeader, AdminStat, AdminStatsGrid } from "@/components/admin-page"
 import { ConfirmActionDialog } from "@/components/confirm-action-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Spinner } from "@/components/ui/spinner"
 import {
   adminKeys,
@@ -42,27 +51,15 @@ import {
 
 function HealthBadge({ application }: { application: ProtectedApplication }) {
   const states = {
-    healthy: {
-      label: "Healthy",
-      icon: CheckCircle2,
-      className: "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-    },
-    unhealthy: {
-      label: "Unhealthy",
-      icon: XCircle,
-      className: "border-destructive/20 bg-destructive/10 text-destructive",
-    },
-    unknown: {
-      label: "Not checked",
-      icon: CircleOff,
-      className: "border-border bg-muted text-muted-foreground",
-    },
+    healthy: { label: "Healthy", icon: CheckCircle2, variant: "secondary" },
+    unhealthy: { label: "Unhealthy", icon: XCircle, variant: "destructive" },
+    unknown: { label: "Not checked", icon: CircleOff, variant: "outline" },
   } as const
   const state = states[application.lastHealthStatus]
 
   return (
-    <Badge variant="outline" className={state.className}>
-      <state.icon className="mr-1 size-3" aria-hidden="true" />
+    <Badge variant={state.variant}>
+      <state.icon data-icon="inline-start" aria-hidden="true" />
       {state.label}
     </Badge>
   )
@@ -131,7 +128,7 @@ function ApplicationCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         <p className="line-clamp-2 text-sm text-muted-foreground">
           {application.description || "No description provided."}
         </p>
@@ -155,7 +152,7 @@ function ApplicationCard({
         </div>
         <div className="flex flex-wrap gap-2">
           {application.domains.slice(0, 3).map((domain) => (
-            <Badge key={domain} variant="outline" className="font-mono text-[10px]">
+            <Badge key={domain} variant="outline" className="font-mono text-xs">
               {domain}
             </Badge>
           ))}
@@ -256,51 +253,44 @@ export function AdminApplicationsPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            Proxy inventory
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Applications</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Register upstreams and enforce role, domain, network, verified-MFA, and
-            session-freshness rules.
-          </p>
-        </div>
-        <Button onClick={openCreate}>
-          <Plus className="size-4" aria-hidden="true" /> Protect application
-        </Button>
-      </header>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Proxy inventory"
+        title="Applications"
+        description="Register upstreams and enforce role, domain, network, verified-MFA, and session-freshness rules."
+        actions={
+          <Button onClick={openCreate}>
+            <Plus data-icon="inline-start" aria-hidden="true" /> Protect application
+          </Button>
+        }
+      />
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <AdminStatsGrid className="xl:grid-cols-3">
         {stats.map(({ label, value, icon: Icon }) => (
-          <Card key={label} size="sm">
-            <CardContent className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="mt-1 text-2xl font-semibold">{value}</p>
-              </div>
-              <Icon className="size-5 text-muted-foreground" aria-hidden="true" />
-            </CardContent>
-          </Card>
+          <AdminStat key={label} label={label} value={value} icon={Icon} />
         ))}
-      </section>
+      </AdminStatsGrid>
 
       {applications.length === 0 ? (
         <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center py-16 text-center">
-            <div className="rounded-2xl bg-muted p-4">
-              <AppWindow className="size-7" aria-hidden="true" />
-            </div>
-            <h2 className="mt-4 text-lg font-medium">No protected applications</h2>
-            <p className="mt-1 max-w-md text-sm text-muted-foreground">
-              Create the first upstream and Gatehouse will issue application-aware decisions to your
-              reverse proxy.
-            </p>
-            <Button className="mt-5" onClick={openCreate}>
-              <Plus className="size-4" aria-hidden="true" /> Create application
-            </Button>
+          <CardContent>
+            <Empty className="min-h-64 border-0">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <AppWindow aria-hidden="true" />
+                </EmptyMedia>
+                <EmptyTitle>No protected applications</EmptyTitle>
+                <EmptyDescription>
+                  Create the first upstream and Gatehouse will issue application-aware decisions to
+                  your reverse proxy.
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button onClick={openCreate}>
+                  <Plus data-icon="inline-start" aria-hidden="true" /> Create application
+                </Button>
+              </EmptyContent>
+            </Empty>
           </CardContent>
         </Card>
       ) : (
@@ -349,6 +339,6 @@ export function AdminApplicationsPage() {
         pending={deleteMutation.isPending}
         destructive
       />
-    </div>
+    </AdminPage>
   )
 }

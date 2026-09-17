@@ -33,7 +33,7 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
 
     return (
       <main className="flex min-h-screen items-center justify-center bg-background p-6 text-foreground">
-        <section className="w-full max-w-lg rounded-2xl border bg-card p-6 shadow-xl">
+        <section className="w-full max-w-lg rounded-xl bg-card p-6 ring-1 ring-foreground/10">
           <div className="flex size-11 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
             <AlertTriangle className="size-5" aria-hidden="true" />
           </div>
@@ -48,7 +48,7 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
             </pre>
           )}
           <Button className="mt-5" onClick={this.reload}>
-            <RefreshCw className="size-4" aria-hidden="true" />
+            <RefreshCw data-icon="inline-start" aria-hidden="true" />
             Reload application
           </Button>
         </section>

@@ -1,5 +1,5 @@
 import { asc, desc, eq, ilike, or } from "drizzle-orm";
-import type { Hono } from "hono";
+import type { BunRouter } from "../../router.js";
 import { getRequestAuditMetadata, queryAuditEvents, writeAuditEvent } from "../../audit-log.js";
 import { db } from "../../db.js";
 import {
@@ -13,7 +13,7 @@ import {
 } from "../../db/schema.js";
 import { parseBoundedInteger, requireAdmin } from "../../http.js";
 
-export function registerIdentityAdminRoutes(app: Hono): void {
+export function registerIdentityAdminRoutes(app: BunRouter): void {
   app.get("/api/admin/sessions", async (c) => {
     const adminSession = await requireAdmin(c);
     if (adminSession instanceof Response) return adminSession;

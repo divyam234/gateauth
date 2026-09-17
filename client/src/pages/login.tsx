@@ -1,5 +1,14 @@
 import { useNavigate } from "@tanstack/react-router"
-import { Eye, EyeOff, Fingerprint, GitBranch, Globe2, LockKeyhole, Mail } from "lucide-react"
+import {
+  Eye,
+  EyeOff,
+  Fingerprint,
+  GitBranch,
+  Globe2,
+  LockKeyhole,
+  Mail,
+  ShieldCheck,
+} from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -160,12 +169,13 @@ export function LoginPage() {
       : "Choose your preferred sign-in method"
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center p-4 sm:p-8">
-      <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-background via-background to-muted/50 dark:from-neutral-950 dark:via-neutral-950 dark:to-neutral-900" />
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent dark:from-primary/3" />
-
-      <Card className="relative w-full max-w-md shadow-xl shadow-black/5 dark:shadow-black/20">
+    <main className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-10 sm:px-6">
+      <Card className="w-full max-w-md shadow-none">
         <CardHeader className="pb-6 text-center">
+          <div className="mx-auto mb-2 flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
+            <ShieldCheck className="size-5" aria-hidden="true" />
+          </div>
+          <p className="text-xs font-medium text-muted-foreground">Gatehouse · Secure access</p>
           <CardTitle className="text-2xl font-semibold tracking-tight">{heading}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
@@ -209,14 +219,14 @@ export function LoginPage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-9 gap-2"
+                  className="gap-2"
                   disabled={pendingAction !== null}
                   onClick={() => void handleSocial(id)}
                 >
                   {pendingAction === id ? (
                     <Spinner data-icon="inline-start" />
                   ) : (
-                    <Icon className="size-4" aria-hidden="true" />
+                    <Icon data-icon="inline-start" aria-hidden="true" />
                   )}
                   <span className="truncate">{label}</span>
                 </Button>
@@ -229,14 +239,14 @@ export function LoginPage() {
               type="button"
               variant="outline"
               size="sm"
-              className="h-9 w-full gap-2"
+              className="w-full gap-2"
               disabled={pendingAction !== null}
               onClick={() => void handlePasskey()}
             >
               {pendingAction === "passkey" ? (
                 <Spinner data-icon="inline-start" />
               ) : (
-                <Fingerprint className="size-4" aria-hidden="true" />
+                <Fingerprint data-icon="inline-start" aria-hidden="true" />
               )}
               Sign in with Passkey
             </Button>
@@ -244,7 +254,7 @@ export function LoginPage() {
 
           <div className="relative">
             <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-[11px] uppercase tracking-widest text-muted-foreground">
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
               Or continue with email
             </span>
           </div>
@@ -263,7 +273,7 @@ export function LoginPage() {
                     type="email"
                     autoComplete="email"
                     placeholder="m@example.com"
-                    className="h-9 pl-9 text-sm"
+                    className="pl-9"
                     aria-invalid={Boolean(errors.email)}
                     {...register("email", {
                       required: "Email is required",
@@ -283,7 +293,7 @@ export function LoginPage() {
                         id="name"
                         autoComplete="name"
                         placeholder="John Doe"
-                        className="h-9 text-sm"
+                        className="text-sm"
                         aria-invalid={Boolean(errors.name)}
                         {...register("name", { required: "Name is required" })}
                       />
@@ -299,7 +309,7 @@ export function LoginPage() {
                           type="button"
                           variant="link"
                           size="xs"
-                          className="h-auto px-0 text-[11px] text-muted-foreground"
+                          className="h-auto px-0 text-xs text-muted-foreground"
                           onClick={() => changeMode("magic-link")}
                         >
                           Forgot?
@@ -316,7 +326,7 @@ export function LoginPage() {
                         type={showPassword ? "text" : "password"}
                         autoComplete={mode === "signup" ? "new-password" : "current-password"}
                         placeholder="••••••••"
-                        className="h-9 pl-9 pr-9 text-sm"
+                        className="pl-9 pr-9"
                         aria-invalid={Boolean(errors.password)}
                         {...register("password", {
                           required: "Password is required",
@@ -353,7 +363,7 @@ export function LoginPage() {
                           type={showPassword ? "text" : "password"}
                           autoComplete="new-password"
                           placeholder="••••••••"
-                          className="h-9 pl-9 pr-9 text-sm"
+                          className="pl-9 pr-9"
                           aria-invalid={Boolean(errors.confirmPassword)}
                           {...register("confirmPassword", {
                             required: "Confirm your password",
@@ -370,7 +380,7 @@ export function LoginPage() {
                 </>
               )}
 
-              <Button type="submit" className="h-9 w-full" disabled={pendingAction !== null}>
+              <Button type="submit" className="w-full" disabled={pendingAction !== null}>
                 {pendingAction === "credentials" && <Spinner data-icon="inline-start" />}
                 {pendingAction === "credentials" ? "Working…" : submitLabel(mode)}
               </Button>

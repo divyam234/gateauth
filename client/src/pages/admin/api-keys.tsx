@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+import { AdminDataPanel, AdminPage, AdminPageHeader } from "@/components/admin-page"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +26,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import {
@@ -126,35 +134,35 @@ export function AdminApiKeysPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            Programmatic access
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">API keys</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Issue expiring credentials, inspect usage, and revoke compromised keys immediately.
-          </p>
-        </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4" aria-hidden="true" /> Create key
-        </Button>
-      </header>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Programmatic access"
+        title="API keys"
+        description="Issue expiring credentials, inspect usage, and revoke compromised keys immediately."
+        actions={
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus data-icon="inline-start" aria-hidden="true" /> Create key
+          </Button>
+        }
+      />
 
       {keys.length === 0 ? (
-        <Empty className="h-56 rounded-xl border border-dashed">
+        <Empty className="min-h-64 border ring-1 ring-foreground/10">
           <EmptyHeader>
-            <KeyRound className="text-muted-foreground/50" aria-hidden="true" />
+            <EmptyMedia variant="icon">
+              <KeyRound aria-hidden="true" />
+            </EmptyMedia>
             <EmptyTitle>No API keys yet</EmptyTitle>
             <EmptyDescription>Create a time-limited key for programmatic access.</EmptyDescription>
           </EmptyHeader>
-          <Button variant="outline" size="sm" onClick={() => setCreateOpen(true)}>
-            Create your first key
-          </Button>
+          <EmptyContent>
+            <Button variant="outline" size="sm" onClick={() => setCreateOpen(true)}>
+              <Plus data-icon="inline-start" aria-hidden="true" /> Create your first key
+            </Button>
+          </EmptyContent>
         </Empty>
       ) : (
-        <div className="overflow-hidden rounded-xl border bg-card">
+        <AdminDataPanel>
           <Table>
             <TableHeader>
               <TableRow>
@@ -216,7 +224,7 @@ export function AdminApiKeysPage() {
               })}
             </TableBody>
           </Table>
-        </div>
+        </AdminDataPanel>
       )}
 
       <Dialog
@@ -337,7 +345,7 @@ export function AdminApiKeysPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AdminPage>
   )
 }
 

@@ -47,11 +47,8 @@ export function VerifyOtpPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center p-4 sm:p-8">
-      <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-background via-background to-muted/50 dark:from-neutral-950 dark:via-neutral-950 dark:to-neutral-900" />
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent dark:from-primary/3" />
-
-      <Card className="relative w-full max-w-sm shadow-xl shadow-black/5 dark:shadow-black/20">
+    <main className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-10 sm:px-6">
+      <Card className="w-full max-w-sm shadow-none">
         <CardHeader className="pb-6 text-center">
           <CardTitle className="text-2xl font-semibold tracking-tight">Check your email</CardTitle>
           <CardDescription>
@@ -66,10 +63,10 @@ export function VerifyOtpPage() {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardContent className="flex flex-col gap-6">
           <div className="flex justify-center">
-            <div className="flex size-14 items-center justify-center rounded-full bg-primary/10">
-              <Mail className="size-6 text-primary" aria-hidden="true" />
+            <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
+              <Mail className="size-5" aria-hidden="true" />
             </div>
           </div>
 
@@ -91,7 +88,7 @@ export function VerifyOtpPage() {
           </div>
 
           <Button
-            className="h-9 w-full"
+            className="w-full"
             disabled={!email || otp.length !== 6 || loading}
             onClick={() => void handleVerify()}
           >
@@ -115,7 +112,7 @@ export function VerifyOtpPage() {
               size="xs"
               onClick={() => void navigate({ to: "/login" })}
             >
-              <ArrowLeft className="size-3" aria-hidden="true" />
+              <ArrowLeft data-icon="inline-start" aria-hidden="true" />
               Back to sign in
             </Button>
           </div>

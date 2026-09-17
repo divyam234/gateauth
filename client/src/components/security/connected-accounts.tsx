@@ -86,8 +86,7 @@ export function ConnectedAccounts() {
   const unlinkMutation = useMutation({
     mutationFn: async (account: LinkedAccountRecord) => {
       const result = await unlinkAccount({
-        providerId: account.providerId,
-        accountId: account.accountId,
+        accountId: account.id,
       })
       if (result.error) throw new Error(result.error.message || "Failed to disconnect account")
       return account
@@ -113,7 +112,7 @@ export function ConnectedAccounts() {
             return the same verified email address.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           {accountsQuery.isPending ? (
             <div className="flex items-center justify-center py-8">
               <Spinner className="size-5" />
@@ -167,7 +166,7 @@ export function ConnectedAccounts() {
                         }
                         onClick={() => setUnlinkTarget(account)}
                       >
-                        <Unlink className="size-4" aria-hidden="true" />
+                        <Unlink data-icon="inline-start" aria-hidden="true" />
                         Disconnect
                       </Button>
                     )}
@@ -192,10 +191,8 @@ export function ConnectedAccounts() {
           )}
 
           {availableProviders.some((provider) => !connectedProviderIds.has(provider.id)) && (
-            <div className="space-y-2 border-t pt-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Add another method
-              </p>
+            <div className="flex flex-col gap-2 border-t pt-4">
+              <p className="text-xs font-medium text-muted-foreground">Add another method</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {availableProviders
                   .filter((provider) => !connectedProviderIds.has(provider.id))
@@ -210,7 +207,7 @@ export function ConnectedAccounts() {
                       {linkingProvider === id ? (
                         <Spinner data-icon="inline-start" />
                       ) : (
-                        <Icon className="size-4" aria-hidden="true" />
+                        <Icon data-icon="inline-start" aria-hidden="true" />
                       )}
                       Connect {label}
                     </Button>

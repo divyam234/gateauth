@@ -37,7 +37,7 @@ pg_restore \
 Validate a restore before relying on it:
 
 ```bash
-DATABASE_URL=postgresql://... npm --prefix server run db:migrate
+DATABASE_URL=postgresql://... bun run --cwd server db:migrate
 psql "$DATABASE_URL" -c 'select count(*) from "user";'
 psql "$DATABASE_URL" -c 'select count(*) from applications;'
 psql "$DATABASE_URL" -c 'select count(*) from audit_events;'

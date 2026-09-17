@@ -68,7 +68,7 @@ export async function getOverview() {
       queryAuditEvents({ limit: 8 }),
     ]);
 
-  const count = countsResult.rows[0] ?? {
+  const count = countsResult[0] ?? {
     users: 0,
     active_sessions: 0,
     mfa_users: 0,
@@ -76,8 +76,8 @@ export async function getOverview() {
     active_api_keys: 0,
     expiring_api_keys: 0,
   };
-  const recentActivity = activityResult.rows[0] ?? { sign_ins: 0, denied: 0, critical: 0 };
-  const applications = healthResult.rows[0] ?? { total: 0, healthy: 0, unhealthy: 0 };
+  const recentActivity = activityResult[0] ?? { sign_ins: 0, denied: 0, critical: 0 };
+  const applications = healthResult[0] ?? { total: 0, healthy: 0, unhealthy: 0 };
 
   return {
     metrics: {
@@ -92,7 +92,7 @@ export async function getOverview() {
       passkeyAdoption: count.users ? Math.round((count.passkey_users / count.users) * 100) : 0,
       applications,
     },
-    trend: trendResult.rows.map((row) => ({
+    trend: trendResult.map((row) => ({
       day: row.day,
       signIns: row.sign_ins,
       denied: row.denied,

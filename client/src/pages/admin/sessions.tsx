@@ -11,10 +11,17 @@ import {
 } from "lucide-react"
 import { type ComponentType, useDeferredValue, useState } from "react"
 import { toast } from "sonner"
+import {
+  AdminDataPanel,
+  AdminPage,
+  AdminPageHeader,
+  AdminStat,
+  AdminStatsGrid,
+} from "@/components/admin-page"
 import { ConfirmActionDialog } from "@/components/confirm-action-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -100,30 +107,18 @@ export function AdminSessionsPage() {
   ] as const
 
   return (
-    <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <header>
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Live identity state
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Sessions</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Review active devices across every user and revoke suspicious access immediately.
-        </p>
-      </header>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Live identity state"
+        title="Sessions"
+        description="Review active devices across every user and revoke suspicious access immediately."
+      />
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <AdminStatsGrid className="xl:grid-cols-3">
         {summary.map(({ label, value, icon: Icon }) => (
-          <Card key={label} size="sm">
-            <CardContent className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="mt-1 text-2xl font-semibold">{value}</p>
-              </div>
-              <Icon className="size-5 text-muted-foreground" aria-hidden="true" />
-            </CardContent>
-          </Card>
+          <AdminStat key={label} label={label} value={value} icon={Icon} />
         ))}
-      </section>
+      </AdminStatsGrid>
 
       <div className="relative max-w-md">
         <Search
@@ -138,7 +133,7 @@ export function AdminSessionsPage() {
         />
       </div>
 
-      <div className="overflow-hidden rounded-xl border bg-card">
+      <AdminDataPanel>
         <Table>
           <TableHeader>
             <TableRow>
@@ -155,12 +150,15 @@ export function AdminSessionsPage() {
           <TableBody>
             {filteredSessions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-40 text-center">
-                  <ShieldOff
-                    className="mx-auto mb-3 size-6 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <p className="font-medium">No matching sessions</p>
+                <TableCell colSpan={8} className="h-48">
+                  <Empty>
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <ShieldOff aria-hidden="true" />
+                      </EmptyMedia>
+                      <EmptyTitle>No matching sessions</EmptyTitle>
+                    </EmptyHeader>
+                  </Empty>
                 </TableCell>
               </TableRow>
             ) : (
@@ -178,7 +176,7 @@ export function AdminSessionsPage() {
                         <DeviceIcon className="size-4 text-muted-foreground" />
                         <div>
                           <p className="text-sm">{device.label}</p>
-                          <p className="max-w-56 truncate text-[10px] text-muted-foreground">
+                          <p className="max-w-56 truncate text-xs text-muted-foreground">
                             {session.userAgent || "No user agent"}
                           </p>
                         </div>
@@ -224,7 +222,7 @@ export function AdminSessionsPage() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </AdminDataPanel>
 
       <p className="text-xs text-muted-foreground">
         Showing {filteredSessions.length} of {sessions.length} retained sessions. Expired rows
@@ -249,6 +247,6 @@ export function AdminSessionsPage() {
         pending={revokeMutation.isPending}
         destructive
       />
-    </div>
+    </AdminPage>
   )
 }

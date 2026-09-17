@@ -1,4 +1,4 @@
-import type { Hono } from "hono";
+import type { BunRouter } from "../../router.js";
 import {
   queryAuditEvents,
   type AuditOutcome,
@@ -33,7 +33,7 @@ function csvCell(value: unknown): string {
   return `"${string.replaceAll('"', '""')}"`;
 }
 
-export function registerAuditAdminRoutes(app: Hono): void {
+export function registerAuditAdminRoutes(app: BunRouter): void {
   app.get("/api/admin/audit-logs", async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;

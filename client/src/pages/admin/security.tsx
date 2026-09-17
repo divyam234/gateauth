@@ -8,6 +8,7 @@ import {
   type LucideIcon,
   ShieldCheck,
 } from "lucide-react"
+import { AdminPage, AdminPageHeader } from "@/components/admin-page"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { securityQueryOptions } from "@/features/admin/query-options"
@@ -29,15 +30,16 @@ function ReadinessScore({
   criticalEvents7d: number
 }) {
   return (
-    <Card className="relative overflow-hidden">
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 via-cyan-500 to-violet-500" />
+    <Card>
       <CardHeader>
         <CardTitle>Readiness score</CardTitle>
         <CardDescription>Configured protections, not a compliance certification.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex items-end gap-3">
-          <span className="text-6xl font-semibold tracking-tight">{score}</span>
+          <span className="font-heading text-4xl font-semibold tabular-nums tracking-tight">
+            {score}
+          </span>
           <span className="pb-2 text-muted-foreground">/ 100</span>
         </div>
         <div
@@ -74,14 +76,10 @@ function ProtectionChecklist({ checks }: { checks: ProtectionCheck[] }) {
           Controls are enabled through plugins and deployment secrets.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="flex flex-col gap-3">
         {checks.map((item) => (
           <div key={item.label} className="flex items-start gap-3 rounded-xl border p-4">
-            <div
-              className={`rounded-lg p-2 ${
-                item.ok ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
-              }`}
-            >
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
               <item.icon className="size-4" />
             </div>
             <div className="min-w-0 flex-1">
@@ -142,16 +140,12 @@ export function AdminSecurityPage() {
     !config.capabilities.captcha || !config.capabilities.compromisedPasswordCheck
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <header>
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Security center
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Identity posture</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          A deployment-level view of authentication protections, adoption, and active risk signals.
-        </p>
-      </header>
+    <AdminPage className="max-w-6xl">
+      <AdminPageHeader
+        eyebrow="Security center"
+        title="Identity posture"
+        description="A deployment-level view of authentication protections, adoption, and active risk signals."
+      />
 
       <div className="grid gap-6 lg:grid-cols-[.75fr_1.25fr]">
         <ReadinessScore
@@ -163,8 +157,8 @@ export function AdminSecurityPage() {
       </div>
 
       {needsProductionHardening && (
-        <div className="flex gap-3 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4">
-          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-amber-600" />
+        <div className="flex gap-3 rounded-xl border bg-muted/30 p-4">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
           <div>
             <p className="text-sm font-medium">Recommended production hardening remains</p>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -174,6 +168,6 @@ export function AdminSecurityPage() {
           </div>
         </div>
       )}
-    </div>
+    </AdminPage>
   )
 }

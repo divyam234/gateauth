@@ -1,9 +1,9 @@
-import type { Hono } from "hono";
+import type { BunRouter } from "../../router.js";
 import { getRequestAuditMetadata, writeAuditEvent } from "../../audit-log.js";
 import { getAllConfig, getRuntimeCapabilities, setConfigMany } from "../../config.js";
 import { readJsonObject, requireAdmin } from "../../http.js";
 
-export function registerConfigAdminRoutes(app: Hono): void {
+export function registerConfigAdminRoutes(app: BunRouter): void {
   app.get("/api/admin/config", async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;

@@ -3,6 +3,7 @@ import { getRouteApi, useNavigate } from "@tanstack/react-router"
 import { Ban, Check, Eye, LogIn, MoreHorizontal, Pencil, Plus, Search, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
+import { AdminDataPanel, AdminPage, AdminPageHeader } from "@/components/admin-page"
 import { DataPagination } from "@/components/data-pagination"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -145,21 +146,17 @@ export function AdminUsersPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            Identity directory
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Users</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {data.total} users across password, social, passkey, and API-key authentication.
-          </p>
-        </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus data-icon="inline-start" /> Add user
-        </Button>
-      </header>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Identity directory"
+        title="Users"
+        description={`${data.total} users across password, social, passkey, and API-key authentication.`}
+        actions={
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus data-icon="inline-start" /> Add user
+          </Button>
+        }
+      />
 
       <search className="max-w-xl">
         <form
@@ -197,7 +194,7 @@ export function AdminUsersPage() {
         </form>
       </search>
 
-      <div className="overflow-hidden rounded-xl border bg-card">
+      <AdminDataPanel>
         <Table>
           <TableHeader>
             <TableRow>
@@ -280,7 +277,7 @@ export function AdminUsersPage() {
             <Spinner /> Refreshing users
           </div>
         )}
-      </div>
+      </AdminDataPanel>
 
       <DataPagination
         page={currentPage}
@@ -316,7 +313,7 @@ export function AdminUsersPage() {
             void routeNavigate({ search: (previous) => ({ ...previous, user: undefined }) })
         }}
       />
-    </div>
+    </AdminPage>
   )
 }
 

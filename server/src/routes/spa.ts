@@ -1,24 +1,36 @@
-import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import type { Hono } from "hono";
-import { serveStatic } from "@hono/node-server/serve-static";
+import type { BunRouter } from "../router.js";
 
-export function registerSpaRoutes(app: Hono, clientDistDir: string): void {
-  if (existsSync(clientDistDir)) {
-    app.get("/assets/*", serveStatic({ root: clientDistDir }));
+function assetPath(clientDistDir: string, requestUrl: string): string | null {
+  const pathname = new URL(requestUrl).pathname;
+  const rawPath = pathname.startsWith("/assets/") ? pathname.slice("/assets/".length) : "";
+
+  try {
+    const decoded = decodeURIComponent(rawPath);
+    if (!decoded || decoded.includes("\\")) return null;
+    if (decoded.split("/").some((segment) => segment === "." || segment === "..")) return null;
+    return `${clientDistDir}/assets/${decoded}`;
+  } catch {
+    return null;
   }
+}
+
+export function registerSpaRoutes(app: BunRouter, clientDistDir: string): void {
+  app.get("/assets/*", async (c) => {
+    const path = assetPath(clientDistDir, c.req.url);
+    if (!path) return c.text("Not found", 404);
+
+    const file = Bun.file(path);
+    if (!(await file.exists())) return c.text("Not found", 404);
+    return new Response(file);
+  });
 
   app.get("*", async (c) => {
     if (new URL(c.req.url).pathname.startsWith("/api/")) {
       return c.json({ error: "Not found" }, 404);
     }
 
-    try {
-      const content = await readFile(path.join(clientDistDir, "index.html"), "utf8");
-      return c.html(content);
-    } catch {
-      return c.text("Client build not found", 404);
-    }
+    const file = Bun.file(`${clientDistDir}/index.html`);
+    if (!(await file.exists())) return c.text("Client build not found", 404);
+    return new Response(file);
   });
 }

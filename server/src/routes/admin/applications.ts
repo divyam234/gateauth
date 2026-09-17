@@ -1,4 +1,4 @@
-import type { Hono } from "hono";
+import type { BunRouter } from "../../router.js";
 import {
   checkApplicationHealth,
   createApplication,
@@ -98,7 +98,7 @@ function parsePolicySimulation(body: Record<string, unknown>) {
   };
 }
 
-export function registerApplicationAdminRoutes(app: Hono): void {
+export function registerApplicationAdminRoutes(app: BunRouter): void {
   app.get("/api/admin/overview", async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;

@@ -1,6 +1,6 @@
 # Gatehouse
 
-Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway built with Better Auth, Hono, React, and Caddy. It protects upstream applications from one admin console and stores authentication, policy, sessions, API keys, and audit history in PostgreSQL.
+Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway built with Better Auth, Bun, React, and Caddy. Bun provides the HTTP server/router and PostgreSQL client, while Drizzle owns the schema and migrations. Gatehouse protects upstream applications from one admin console and stores authentication, policy, sessions, API keys, and audit history in PostgreSQL.
 
 ## Core features
 
@@ -23,7 +23,7 @@ Caddy (public entry point)
   | Gatehouse routes ----------------------.
   |                                        |
   | forward_auth /api/verify               v
-  '---------------------------------> Gatehouse Hono server
+  '---------------------------------> Gatehouse Bun server
                                           |  Better Auth
                                           |  Policy engine
                                           |  Admin API + SPA
@@ -49,7 +49,7 @@ docker compose up --build
 
 Open `http://app.localhost/login`. Compose creates:
 
-- PostgreSQL 18.4
+- PostgreSQL 18.6
 - Gatehouse server and built React application
 - a sample `traefik/whoami` protected upstream
 - Caddy on ports 80 and 443
@@ -58,26 +58,23 @@ The seeded administrator is controlled by `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PAS
 
 ## Local development
 
-### Server
+### Install and run
 
 ```bash
-cd server
-npm ci
-cp ../.env.example .env
+bun install
+cp .env.example server/.env
 # Set DATABASE_URL, BETTER_AUTH_SECRET, and BETTER_AUTH_URL.
-npm run db:migrate
-npm run dev
+bun run --cwd server db:migrate
+bun run dev:server
 ```
 
-### Client
+In another terminal, start the client:
 
 ```bash
-cd client
-npm ci
-npm run dev
+bun run dev:client
 ```
 
-Client routes live in `client/src/routes`. UI primitives live in `client/src/components/ui` and are managed with the shadcn CLI. Feature components compose those primitives instead of reimplementing controls. The TanStack Router Vite plugin generates the typed route tree during development, tests, and production builds; the Router CLI is not installed. Biome is the only client formatter and linter; run `npm run check` before committing.
+Client routes live in `client/src/routes`. UI primitives live in `client/src/components/ui` and are managed with the shadcn CLI. Feature components compose those primitives instead of reimplementing controls. The TanStack Router Vite plugin generates the typed route tree during development, tests, and production builds; the Router CLI is not installed. Biome is the only client formatter and linter; run `bun run --cwd client check` before committing.
 
 Vite proxies `/api/auth`, `/api/verify`, and `/api/admin` to `http://localhost:3001`.
 
@@ -86,11 +83,10 @@ Vite proxies `/api/auth`, `/api/verify`, and `/api/admin` to `http://localhost:3
 `server/src/db/schema.ts` defines Better Auth and Gatehouse tables. Better Auth uses the official Drizzle adapter against that schema, and Drizzle Kit writes generated migrations to `server/drizzle`.
 
 ```bash
-cd server
-npm run db:generate   # create a migration after changing the schema
-npm run db:check      # validate migration snapshots
-DATABASE_URL=postgresql://... npm run db:migrate
-npm run db:studio     # optional local database browser
+bun run --cwd server db:generate   # create a migration after changing the schema
+bun run --cwd server db:check      # validate migration snapshots
+DATABASE_URL=postgresql://... bun run --cwd server db:migrate
+bun run --cwd server db:studio     # optional local database browser
 ```
 
 When `RUN_MIGRATIONS=true`, the server applies pending Drizzle migrations automatically during startup under a PostgreSQL advisory lock. The Drizzle schema and generated migrations define the database. Never rewrite an applied migration; update the schema and generate a new migration.
@@ -168,10 +164,10 @@ Run local verification:
 It performs:
 
 - strict server typechecking, including integration tests
-- server TypeScript production build
-- 37 server tests against a fresh real PostgreSQL 18.4 cluster
+- Bun-targeted server production build
+- 37 server tests against a fresh real PostgreSQL 18 cluster
 - client Biome formatting, linting, import, and architecture checks
-- 25 React/Vitest tests
+- 25 React/Vitest tests running under Bun with `happy-dom`
 - strict client TypeScript and production build
 
 The PostgreSQL test harness looks for binaries in this order:
@@ -196,4 +192,4 @@ More detail:
 
 - [Operations and backups](docs/operations.md)
 - [Caddy and multi-application routing](docs/caddy.md)
-- [Testing with PostgreSQL 18.4](docs/testing.md)
+- [Testing with PostgreSQL 18](docs/testing.md)

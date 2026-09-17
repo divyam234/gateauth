@@ -32,7 +32,7 @@ function BackupCodes({ codes }: { codes: string[] }) {
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-amber-500/25 bg-amber-500/5 p-4">
+    <div className="flex flex-col gap-3 rounded-xl border bg-muted/30 p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-medium">Save these recovery codes now</p>
@@ -41,7 +41,7 @@ function BackupCodes({ codes }: { codes: string[] }) {
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={copy}>
-          <Clipboard className="mr-1.5 size-3.5" />
+          <Clipboard data-icon="inline-start" />
           Copy
         </Button>
       </div>
@@ -67,10 +67,12 @@ export function TwoFactorManager({ enabled, onChanged }: TwoFactorManagerProps) 
     if (!password) return toast.error("Enter your current password")
     setBusy(true)
     try {
-      const result = await twoFactor.enable({ password })
+      const result = await twoFactor.enable({ password, method: "totp" })
       if (result.error) throw new Error(result.error.message || "Unable to start two-factor setup")
-      if (!result.data) throw new Error("Two-factor setup details were not returned")
-      setSetup(result.data)
+      if (result.data?.method !== "totp") {
+        throw new Error("Authenticator setup details were not returned")
+      }
+      setSetup({ totpURI: result.data.totpURI, backupCodes: result.data.backupCodes })
       setVerificationCode("")
       toast.success("Scan the QR code, then verify the generated code")
     } catch (error) {
@@ -152,7 +154,7 @@ export function TwoFactorManager({ enabled, onChanged }: TwoFactorManagerProps) 
           <Badge variant={enabled ? "secondary" : "outline"}>
             {enabled ? (
               <>
-                <Check className="mr-1 size-3" />
+                <Check data-icon="inline-start" />
                 Enabled
               </>
             ) : (
@@ -161,13 +163,13 @@ export function TwoFactorManager({ enabled, onChanged }: TwoFactorManagerProps) 
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {setup ? (
           <div className="grid gap-5 lg:grid-cols-[190px_1fr]">
-            <div className="flex items-center justify-center rounded-2xl border bg-white p-3">
+            <div className="flex items-center justify-center rounded-xl border bg-white p-3">
               <QRCodeSVG value={setup.totpURI} size={164} level="M" />
             </div>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div>
                 <p className="font-medium">1. Scan the QR code</p>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -221,17 +223,17 @@ export function TwoFactorManager({ enabled, onChanged }: TwoFactorManagerProps) 
               {enabled ? (
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" onClick={rotateCodes} disabled={busy}>
-                    <RefreshCcw className="mr-1.5 size-3.5" />
+                    <RefreshCcw data-icon="inline-start" />
                     Rotate recovery codes
                   </Button>
                   <Button variant="destructive" onClick={disable} disabled={busy}>
-                    <ShieldOff className="mr-1.5 size-3.5" />
+                    <ShieldOff data-icon="inline-start" />
                     Disable
                   </Button>
                 </div>
               ) : (
                 <Button onClick={enable} disabled={busy}>
-                  <KeyRound className="mr-1.5 size-3.5" />
+                  <KeyRound data-icon="inline-start" />
                   Set up 2FA
                 </Button>
               )}

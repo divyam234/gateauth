@@ -81,7 +81,7 @@ export function PolicyLab({ applications }: { applications: ProtectedApplication
       </CardHeader>
       <CardContent>
         <form
-          className="space-y-4"
+          className="flex flex-col gap-4"
           onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         >
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

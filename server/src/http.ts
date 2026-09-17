@@ -1,4 +1,4 @@
-import type { Context } from "hono";
+import type { RouteContext } from "./router.js";
 import { auth } from "./auth.js";
 
 export type AdminSession = NonNullable<Awaited<ReturnType<typeof auth.api.getSession>>>;
@@ -14,14 +14,14 @@ export function isAdminRole(role: unknown): boolean {
     .includes("admin");
 }
 
-export async function requireAdmin(c: Context): Promise<AdminSession | Response> {
+export async function requireAdmin(c: RouteContext): Promise<AdminSession | Response> {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   if (!session) return c.json({ error: "Unauthorized" }, 401);
   if (!isAdminRole(session.user.role)) return c.json({ error: "Forbidden" }, 403);
   return session;
 }
 
-export async function readJsonObject(c: Context): Promise<Record<string, unknown> | Response> {
+export async function readJsonObject(c: RouteContext): Promise<Record<string, unknown> | Response> {
   try {
     const body: unknown = await c.req.json();
     return isRecord(body) ? body : c.json({ error: "JSON body must be an object" }, 400);

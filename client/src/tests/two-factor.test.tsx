@@ -17,6 +17,7 @@ const authMocks = vi.hoisted(() => ({
   verifyBackupCode: vi.fn(async () => ({ data: { token: "ok" }, error: null })),
   enable: vi.fn(async () => ({
     data: {
+      method: "totp" as const,
       totpURI: "otpauth://totp/Gatehouse:test@example.com?secret=ABC123&issuer=Gatehouse",
       backupCodes: ["backup-1", "backup-2"],
     },
@@ -123,7 +124,7 @@ describe("two-factor enrollment", () => {
     await user.type(screen.getByPlaceholderText("Current password"), "correct horse battery staple")
     await user.click(screen.getByRole("button", { name: /set up 2fa/i }))
 
-    expect(authMocks.enable).toHaveBeenCalledWith({ password: "correct horse battery staple" })
+    expect(authMocks.enable).toHaveBeenCalledWith(expect.objectContaining({ method: "totp" }))
     expect(await screen.findByText("1. Scan the QR code")).toBeInTheDocument()
     expect(screen.getByText("2. Verify the six-digit code")).toBeInTheDocument()
   })

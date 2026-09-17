@@ -83,19 +83,18 @@ export function TwoFactorPage() {
   )
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden p-4 sm:p-8">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,oklch(0.72_0.17_275_/_0.18),transparent_32rem),radial-gradient(circle_at_90%_90%,oklch(0.72_0.12_210_/_0.12),transparent_28rem)]" />
-      <Card className="relative w-full max-w-md border-primary/15 shadow-2xl shadow-primary/10">
+    <main className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-10 sm:px-6">
+      <Card className="w-full max-w-md shadow-none">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <ShieldCheck className="size-6" />
+          <div className="mx-auto mb-2 flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
+            <ShieldCheck className="size-5" />
           </div>
           <CardTitle className="text-2xl">Verify it’s really you</CardTitle>
           <CardDescription>
             Complete the second authentication step to create a verified session.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="flex flex-col gap-5">
           <Tabs
             value={mode}
             onValueChange={(value) => {
@@ -105,25 +104,25 @@ export function TwoFactorPage() {
           >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="totp" disabled={!methods.includes("totp")}>
-                <KeyRound className="mr-1.5 size-3.5" />
+                <KeyRound data-icon="inline-start" />
                 Authenticator
               </TabsTrigger>
               <TabsTrigger value="otp" disabled={!methods.includes("otp")}>
-                <Mail className="mr-1.5 size-3.5" />
+                <Mail data-icon="inline-start" />
                 Email
               </TabsTrigger>
               <TabsTrigger value="backup">
-                <TicketCheck className="mr-1.5 size-3.5" />
+                <TicketCheck data-icon="inline-start" />
                 Recovery
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="totp" className="mt-5 space-y-4 text-center">
+            <TabsContent value="totp" className="mt-5 flex flex-col gap-4 text-center">
               <p className="text-sm text-muted-foreground">
                 Enter the six-digit code from your authenticator app.
               </p>
               <div className="flex justify-center">{otpInput}</div>
             </TabsContent>
-            <TabsContent value="otp" className="mt-5 space-y-4 text-center">
+            <TabsContent value="otp" className="mt-5 flex flex-col gap-4 text-center">
               <p className="text-sm text-muted-foreground">
                 Send a short-lived code to the email address on your account.
               </p>
@@ -139,7 +138,7 @@ export function TwoFactorPage() {
               )}
               {emailCodeSent && <div className="flex justify-center">{otpInput}</div>}
             </TabsContent>
-            <TabsContent value="backup" className="mt-5 space-y-4">
+            <TabsContent value="backup" className="mt-5 flex flex-col gap-4">
               <p className="text-sm text-muted-foreground">
                 Use one unused recovery code. It will be consumed after verification.
               </p>

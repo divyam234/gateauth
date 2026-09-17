@@ -1,5 +1,5 @@
 import { and, eq, gt, isNull, or } from "drizzle-orm";
-import type { Context, Hono } from "hono";
+import type { BunRouter, RouteContext } from "../router.js";
 import { auth } from "../auth.js";
 import {
   getApplication,
@@ -36,7 +36,7 @@ function forwardedPath(headers: Headers, fallback: string): string {
   }
 }
 
-async function resolveRequestApplication(c: Context): Promise<ProtectedApplication | null> {
+async function resolveRequestApplication(c: RouteContext): Promise<ProtectedApplication | null> {
   const explicit = c.req.query("application") || c.req.header("x-auth-application");
   if (explicit) return getApplication(explicit);
 
@@ -168,7 +168,7 @@ async function applyUserGrant(
   };
 }
 
-export function registerVerifyRoutes(app: Hono): void {
+export function registerVerifyRoutes(app: BunRouter): void {
   app.get("/api/verify", async (c) => {
     const application = await resolveRequestApplication(c);
     if (!application) return c.json({ error: "Unknown protected application" }, 404);

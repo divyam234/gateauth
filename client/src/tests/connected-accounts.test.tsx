@@ -92,8 +92,7 @@ describe("ConnectedAccounts", () => {
     await user.click(screen.getByRole("button", { name: "Disconnect account" }))
     await waitFor(() => {
       expect(unlinkAccount).toHaveBeenCalledWith({
-        providerId: "github",
-        accountId: "1234",
+        accountId: "github-account",
       })
     })
   })

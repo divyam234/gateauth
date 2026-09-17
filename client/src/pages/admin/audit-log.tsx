@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { getRouteApi } from "@tanstack/react-router"
 import { Download, Filter, Search, ShieldAlert } from "lucide-react"
 import { useEffect, useState } from "react"
+import { AdminDataPanel, AdminPage, AdminPageHeader } from "@/components/admin-page"
 import { DataPagination } from "@/components/data-pagination"
 import { Badge } from "@/components/ui/badge"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -13,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -134,12 +136,7 @@ function EventDetails({
 }
 
 function SeverityIndicator({ severity }: { severity: AuditSeverity }) {
-  const className =
-    severity === "critical"
-      ? "bg-destructive"
-      : severity === "warning"
-        ? "bg-amber-500"
-        : "bg-emerald-500"
+  const className = severity === "critical" ? "bg-destructive" : "bg-muted-foreground/50"
 
   return (
     <span
@@ -172,29 +169,24 @@ export function AdminAuditLogPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            Immutable event stream
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Audit log</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Investigate authentication, proxy decisions, configuration changes, and administrator
-            actions.
-          </p>
-        </div>
-        <a
-          className={buttonVariants({ variant: "outline" })}
-          href="/api/admin/audit-logs/export.csv"
-          download
-        >
-          <Download className="size-4" />
-          Export CSV
-        </a>
-      </header>
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Immutable event stream"
+        title="Audit log"
+        description="Investigate authentication, proxy decisions, configuration changes, and administrator actions."
+        actions={
+          <a
+            className={buttonVariants({ variant: "outline" })}
+            href="/api/admin/audit-logs/export.csv"
+            download
+          >
+            <Download data-icon="inline-start" />
+            Export CSV
+          </a>
+        }
+      />
 
-      <Card>
+      <Card size="sm">
         <CardContent className="grid gap-3 pt-1 sm:grid-cols-[1fr_180px_180px_auto]">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -265,13 +257,13 @@ export function AdminAuditLogPage() {
           </Select>
 
           <Button variant="ghost" size="sm" onClick={resetFilters}>
-            <Filter className="size-4" />
+            <Filter data-icon="inline-start" />
             Reset
           </Button>
         </CardContent>
       </Card>
 
-      <div className="overflow-hidden rounded-xl border bg-card">
+      <AdminDataPanel>
         <Table>
           <TableHeader>
             <TableRow>
@@ -289,12 +281,16 @@ export function AdminAuditLogPage() {
           <TableBody>
             {!data.logs.length ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-40 text-center">
-                  <ShieldAlert className="mx-auto mb-3 size-6 text-muted-foreground" />
-                  <p className="font-medium">No matching events</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Adjust the filters or wait for activity.
-                  </p>
+                <TableCell colSpan={7} className="h-48">
+                  <Empty>
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <ShieldAlert aria-hidden="true" />
+                      </EmptyMedia>
+                      <EmptyTitle>No matching events</EmptyTitle>
+                      <EmptyDescription>Adjust the filters or wait for activity.</EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
                 </TableCell>
               </TableRow>
             ) : (
@@ -322,7 +318,7 @@ export function AdminAuditLogPage() {
                   </TableCell>
                   <TableCell>
                     <p className="text-xs">{event.ipAddress || "—"}</p>
-                    <p className="max-w-36 truncate text-[10px] text-muted-foreground">
+                    <p className="max-w-36 truncate text-xs text-muted-foreground">
                       {event.userAgent || "Unknown client"}
                     </p>
                   </TableCell>
@@ -350,7 +346,7 @@ export function AdminAuditLogPage() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </AdminDataPanel>
 
       <DataPagination
         page={page}
@@ -377,6 +373,6 @@ export function AdminAuditLogPage() {
           if (!open) setSelected(null)
         }}
       />
-    </div>
+    </AdminPage>
   )
 }

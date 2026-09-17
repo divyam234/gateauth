@@ -1,10 +1,10 @@
 import { sql } from "drizzle-orm";
-import type { Hono } from "hono";
+import type { BunRouter } from "../router.js";
 import { auth } from "../auth.js";
 import { getAllConfig, getRuntimeCapabilities } from "../config.js";
 import { db } from "../db.js";
 
-export function registerPublicRoutes(app: Hono): void {
+export function registerPublicRoutes(app: BunRouter): void {
   app.get("/api/public/capabilities", async (c) =>
     c.json({ capabilities: getRuntimeCapabilities(), config: await getAllConfig() }),
   );

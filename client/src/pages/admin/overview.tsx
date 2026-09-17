@@ -10,8 +10,8 @@ import {
   ShieldCheck,
   ShieldX,
   Users,
-  Waypoints,
 } from "lucide-react"
+import { AdminPage, AdminPageHeader, AdminStat, AdminStatsGrid } from "@/components/admin-page"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,14 +28,12 @@ function EventRow({ event }: { event: AuditEvent }) {
   return (
     <div className="flex items-start gap-3 border-b py-3 last:border-0">
       <div
-        className={`mt-1 size-2 rounded-full ${event.severity === "critical" ? "bg-destructive" : event.severity === "warning" ? "bg-amber-500" : "bg-emerald-500"}`}
+        className={`mt-1 size-2 rounded-full ${event.severity === "critical" ? "bg-destructive" : "bg-muted-foreground/50"}`}
       />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate text-sm font-medium">{event.action.replaceAll(".", " · ")}</p>
-          <Badge variant={tone} className="h-5 text-[10px]">
-            {event.outcome}
-          </Badge>
+          <Badge variant={tone}>{event.outcome}</Badge>
         </div>
         <p className="mt-1 truncate text-xs text-muted-foreground">
           {event.targetType || "system"}
@@ -85,52 +83,34 @@ export function AdminOverviewPage() {
   ]
 
   return (
-    <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <section className="relative overflow-hidden rounded-2xl border bg-[linear-gradient(135deg,oklch(0.22_0.04_275),oklch(0.15_0.025_250))] p-6 text-white shadow-2xl shadow-violet-950/10 sm:p-8">
-        <div className="absolute -right-24 -top-24 size-72 rounded-full bg-violet-500/20 blur-3xl" />
-        <div className="absolute -bottom-24 left-1/3 size-64 rounded-full bg-cyan-400/10 blur-3xl" />
-        <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div>
-            <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-violet-200">
-              <Waypoints className="size-4" /> Identity control plane
-            </div>
-            <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-              Every application. One policy surface.
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-              Monitor access, harden identity, and operate protected upstreams from a single
-              PostgreSQL-backed console.
-            </p>
-          </div>
-          <Button
-            className="w-fit bg-white text-slate-950 hover:bg-slate-100"
-            onClick={() => navigate({ to: "/admin/applications" })}
-          >
-            Manage applications <ArrowRight className="size-4" />
+    <AdminPage>
+      <AdminPageHeader
+        eyebrow="Identity control plane"
+        title="Overview"
+        description={
+          <>
+            <span>Every application. One policy surface.</span> Monitor access, harden identity, and
+            operate protected upstreams from a single console.
+          </>
+        }
+        actions={
+          <Button onClick={() => navigate({ to: "/admin/applications" })}>
+            Manage applications <ArrowRight data-icon="inline-end" />
           </Button>
-        </div>
-      </section>
+        }
+      />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <AdminStatsGrid>
         {cards.map((item) => (
-          <Card key={item.label} className="relative overflow-hidden">
-            <CardContent className="pt-1">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{item.label}</p>
-                  <p className="mt-2 text-3xl font-semibold tracking-tight">
-                    {item.value.toLocaleString()}
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground">{item.detail}</p>
-                </div>
-                <div className="rounded-xl bg-primary/8 p-2.5 text-primary">
-                  <item.icon className="size-5" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <AdminStat
+            key={item.label}
+            label={item.label}
+            value={item.value.toLocaleString()}
+            detail={item.detail}
+            icon={item.icon}
+          />
         ))}
-      </section>
+      </AdminStatsGrid>
 
       <section className="grid gap-6 xl:grid-cols-[1.55fr_1fr]">
         <Card>
@@ -160,7 +140,7 @@ export function AdminOverviewPage() {
                       }}
                     />
                   </div>
-                  <span className="truncate text-center text-[9px] text-muted-foreground">
+                  <span className="truncate text-center text-xs text-muted-foreground">
                     {new Date(`${item.day}T00:00:00`).toLocaleDateString(undefined, {
                       day: "numeric",
                     })}
@@ -184,7 +164,7 @@ export function AdminOverviewPage() {
             <CardTitle>Security posture</CardTitle>
             <CardDescription>Adoption and credential health.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-5 pt-1">
+          <CardContent className="flex flex-col gap-5 pt-1">
             {[
               {
                 label: "Multi-factor authentication",
@@ -216,7 +196,7 @@ export function AdminOverviewPage() {
                 <p className="text-xs text-muted-foreground">Active API keys</p>
               </div>
               <div className="rounded-xl border bg-muted/20 p-3">
-                <AlertTriangle className="size-4 text-amber-500" />
+                <AlertTriangle className="size-4 text-muted-foreground" />
                 <p className="mt-3 text-xl font-semibold">{metrics.expiringApiKeys}</p>
                 <p className="text-xs text-muted-foreground">Expire in 7 days</p>
               </div>
@@ -237,7 +217,7 @@ export function AdminOverviewPage() {
               size="sm"
               onClick={() => navigate({ to: "/admin/audit-log" })}
             >
-              View audit log <ArrowRight className="size-4" />
+              View audit log <ArrowRight data-icon="inline-end" />
             </Button>
           </div>
         </CardHeader>
@@ -251,6 +231,6 @@ export function AdminOverviewPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </AdminPage>
   )
 }

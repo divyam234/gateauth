@@ -1,10 +1,11 @@
 import { useNavigate } from "@tanstack/react-router"
-import { Fingerprint, Laptop, LogOut, Plus, Trash2, UserRound } from "lucide-react"
+import { Fingerprint, Laptop, LogOut, Plus, ShieldCheck, Trash2, UserRound } from "lucide-react"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { ConfirmActionDialog } from "@/components/confirm-action-dialog"
 import { ConnectedAccounts } from "@/components/security/connected-accounts"
 import { TwoFactorManager } from "@/components/security/two-factor-manager"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
@@ -125,9 +126,8 @@ export function DashboardPage() {
   const activeDevices = (sessions ?? []).filter((item: UserSessionRecord) => item.isActive)
 
   return (
-    <main className="relative min-h-screen p-4 sm:p-8">
-      <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-background via-background to-muted/50 dark:from-neutral-950 dark:via-neutral-950 dark:to-neutral-900" />
-      <div className="relative mx-auto flex max-w-2xl flex-col gap-6">
+    <main className="min-h-screen">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8">
         {impersonatedBy && (
           <section className="flex items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
             <div>
@@ -142,10 +142,10 @@ export function DashboardPage() {
           </section>
         )}
 
-        <header className="flex items-center justify-between gap-4">
+        <header className="flex flex-col gap-4 border-b pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <UserRound className="size-5 text-primary" aria-hidden="true" />
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <UserRound className="size-5" aria-hidden="true" />
             </div>
             <div className="min-w-0">
               <h1 className="truncate text-lg font-semibold tracking-tight">{user.name}</h1>
@@ -155,17 +155,53 @@ export function DashboardPage() {
           <Button
             variant="outline"
             size="sm"
+            className="w-full sm:w-auto"
             onClick={() => void handleSignOut()}
             disabled={busyAction === "sign-out"}
           >
             {busyAction === "sign-out" ? (
               <Spinner data-icon="inline-start" />
             ) : (
-              <LogOut className="size-4" aria-hidden="true" />
+              <LogOut data-icon="inline-start" aria-hidden="true" />
             )}
             {busyAction === "sign-out" ? "Signing out…" : "Sign out"}
           </Button>
         </header>
+
+        <section className="grid gap-3 sm:grid-cols-3" aria-label="Account security summary">
+          <Card size="sm">
+            <CardContent className="flex items-center justify-between px-4">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Two-factor</p>
+                <p className="mt-1 text-sm font-semibold">
+                  {twoFactorEnabled ? "Protected" : "Not enabled"}
+                </p>
+              </div>
+              <Badge variant={twoFactorEnabled ? "secondary" : "outline"}>
+                <ShieldCheck data-icon="inline-start" aria-hidden="true" />
+                {twoFactorEnabled ? "On" : "Off"}
+              </Badge>
+            </CardContent>
+          </Card>
+          <Card size="sm">
+            <CardContent className="flex items-center justify-between px-4">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Passkeys</p>
+                <p className="mt-1 text-sm font-semibold">{passkeys?.length ?? 0} registered</p>
+              </div>
+              <Fingerprint className="size-5 text-muted-foreground" aria-hidden="true" />
+            </CardContent>
+          </Card>
+          <Card size="sm">
+            <CardContent className="flex items-center justify-between px-4">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">Sessions</p>
+                <p className="mt-1 text-sm font-semibold">{activeDevices.length} active</p>
+              </div>
+              <Laptop className="size-5 text-muted-foreground" aria-hidden="true" />
+            </CardContent>
+          </Card>
+        </section>
 
         <TwoFactorManager enabled={twoFactorEnabled} onChanged={() => void refetchSession()} />
 
@@ -190,7 +226,7 @@ export function DashboardPage() {
                 {busyAction === "passkey" ? (
                   <Spinner data-icon="inline-start" />
                 ) : (
-                  <Plus className="size-4" aria-hidden="true" />
+                  <Plus data-icon="inline-start" aria-hidden="true" />
                 )}
                 Add passkey
               </Button>

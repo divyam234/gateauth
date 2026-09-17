@@ -12,6 +12,7 @@ import {
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+import { AdminPage, AdminPageHeader } from "@/components/admin-page"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -123,20 +124,15 @@ function ConfigEditor({ data }: { data: Awaited<ReturnType<typeof fetchAdminConf
   const onSubmit = form.handleSubmit((values) => mutation.mutate(values))
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 sm:p-6 lg:p-8">
-      <header>
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Runtime configuration
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Settings</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Safe, dynamic control-plane settings. Provider credentials remain server-side and are
-          never returned to the browser.
-        </p>
-      </header>
+    <AdminPage className="max-w-6xl">
+      <AdminPageHeader
+        eyebrow="Runtime configuration"
+        title="Settings"
+        description="Safe, dynamic control-plane settings. Provider credentials remain server-side and are never returned to the browser."
+      />
 
       <form className="grid gap-6 lg:grid-cols-[1.25fr_.75fr]" onSubmit={onSubmit} noValidate>
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -279,7 +275,7 @@ function ConfigEditor({ data }: { data: Awaited<ReturnType<typeof fetchAdminConf
           </Card>
           <div className="flex justify-end">
             <Button type="submit" disabled={mutation.isPending || !form.formState.isDirty}>
-              <Save className="size-4" aria-hidden="true" />
+              <Save data-icon="inline-start" aria-hidden="true" />
               {mutation.isPending ? "Saving…" : "Save settings"}
             </Button>
           </div>
@@ -295,7 +291,7 @@ function ConfigEditor({ data }: { data: Awaited<ReturnType<typeof fetchAdminConf
               Enabled by startup configuration and installed Better Auth plugins.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="flex flex-col gap-2">
             {Object.entries(data.capabilities).map(([key, enabled]) => (
               <div
                 key={key}
@@ -318,7 +314,7 @@ function ConfigEditor({ data }: { data: Awaited<ReturnType<typeof fetchAdminConf
           </CardContent>
         </Card>
       </form>
-    </div>
+    </AdminPage>
   )
 }
 

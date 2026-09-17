@@ -9,8 +9,7 @@
 ## Server integration tests
 
 ```bash
-cd server
-POSTGRES_HOME=/path/to/postgresql-18.4 npm test
+POSTGRES_HOME=/path/to/postgresql-18 bun run --cwd server test
 ```
 
 The harness creates a temporary cluster on a random loopback port with trust authentication, applies generated Drizzle migrations, creates a temporary database, runs tests sequentially, stops PostgreSQL, and deletes the cluster.
@@ -18,7 +17,7 @@ The harness creates a temporary cluster on a random loopback port with trust aut
 Instead of `POSTGRES_HOME`, set:
 
 ```bash
-POSTGRES_ARCHIVE=/path/to/postgresql-18.4.0-x86_64-unknown-linux-gnu.tar.gz
+POSTGRES_ARCHIVE=/path/to/postgresql-18-x86_64-unknown-linux-gnu.tar.gz bun run --cwd server test
 ```
 
 The archive is unpacked into a temporary directory. It must contain `bin/initdb`, `bin/pg_ctl`, and the matching libraries.
@@ -44,21 +43,19 @@ The integration suite covers the main auth, policy, admin, and audit paths, incl
 ## Client tests
 
 ```bash
-cd client
-npm run check
-npm test
-npm run build
+bun run --cwd client check
+bun run --cwd client test
+bun run --cwd client build
 ```
 
 Biome checks formatting, import organization, React correctness, accessibility, and project rules. The React suite covers login/sign-up, passkey and social actions, admin overview, application editing, policy simulation, settings, security posture, session management, second-factor choices, and QR enrollment.
 
 ## Dependency audits
 
-Production dependencies are checked with:
+The Bun workspace lock can be checked for published dependency vulnerabilities with:
 
 ```bash
-npm --prefix server audit --omit=dev
-npm --prefix client audit --omit=dev
+bun audit
 ```
 
-Drizzle Kit is development-only and is excluded from the runtime image by `npm prune --omit=dev`; production startup uses the Drizzle runtime migrator against committed SQL migrations.
+Drizzle Kit is development-only. The runtime image installs the workspace with `bun install --production --frozen-lockfile`; production startup uses the Drizzle runtime migrator against committed SQL migrations.

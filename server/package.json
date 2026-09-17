@@ -1,40 +1,32 @@
 {
   "name": "forward-auth-server",
+  "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
-    "start": "node dist/index.js",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx src/migrate.ts",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:integration": "vitest run --config vitest.integration.config.ts",
-    "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push",
-    "db:check": "drizzle-kit check"
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --target=bun --outdir=dist --sourcemap=external",
+    "typecheck": "bun --bun tsc --noEmit && bun --bun tsc -p tsconfig.test.json",
+    "start": "bun src/index.ts",
+    "db:generate": "bun --bun drizzle-kit generate",
+    "db:migrate": "bun src/migrate.ts",
+    "test": "bun --bun vitest run",
+    "test:watch": "bun --bun vitest",
+    "test:integration": "bun --bun vitest run --config vitest.integration.config.ts",
+    "db:studio": "bun --bun drizzle-kit studio",
+    "db:push": "bun --bun drizzle-kit push",
+    "db:check": "bun --bun drizzle-kit check"
   },
   "dependencies": {
-    "@better-auth/api-key": "1.6.18",
-    "@better-auth/passkey": "1.6.18",
-    "@hono/node-server": "^1.13.0",
-    "better-auth": "1.6.18",
-    "dotenv": "^16.4.0",
+    "@better-auth/api-key": "1.7.5",
+    "@better-auth/passkey": "1.7.5",
+    "better-auth": "1.7.5",
     "drizzle-orm": "^0.45.2",
-    "hono": "4.12.25",
-    "ipaddr.js": "2.4.0",
-    "pg": "8.16.3"
+    "ipaddr.js": "^2.5.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/pg": "8.15.5",
+    "@types/bun": "^1.4.2",
     "drizzle-kit": "^0.31.10",
-    "tsx": "^4.19.0",
-    "typescript": "^5.6.0",
-    "vitest": "^4.1.6"
-  },
-  "overrides": {
-    "esbuild": "0.28.1"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
   }
 }

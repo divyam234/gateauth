@@ -1,27 +1,32 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import pg from "pg";
+import { SQL } from "bun";
+import { drizzle } from "drizzle-orm/bun-sql";
 import { env } from "./env.js";
 import * as schema from "./db/schema.js";
 
-const { Pool } = pg;
+function databaseUrlWithSessionOptions(databaseURL: string): string {
+  const url = new URL(databaseURL);
+  url.searchParams.set("application_name", "gatehouse-auth");
 
-export const pool = new Pool({
-  connectionString: env.databaseURL,
+  const existingOptions = url.searchParams.get("options")?.trim();
+  const statementTimeout = `-c statement_timeout=${env.databaseStatementTimeoutMs}`;
+  url.searchParams.set(
+    "options",
+    existingOptions ? `${existingOptions} ${statementTimeout}` : statementTimeout,
+  );
+  return url.toString();
+}
+
+export const sqlClient = new SQL({
+  url: databaseUrlWithSessionOptions(env.databaseURL),
   max: env.databasePoolMax,
-  idleTimeoutMillis: 30_000,
-  connectionTimeoutMillis: 5_000,
-  statement_timeout: env.databaseStatementTimeoutMs,
-  application_name: "gatehouse-auth",
+  idleTimeout: 30,
+  connectionTimeout: 5,
 });
 
-pool.on("error", (error) => {
-  console.error("[database] idle client error", error);
-});
-
-export const db = drizzle({ client: pool, schema, casing: "snake_case" });
+export const db = drizzle({ client: sqlClient, schema, casing: "snake_case" });
 export type Database = typeof db;
 export type DatabaseTransaction = Parameters<Parameters<Database["transaction"]>[0]>[0];
 
 export async function closeDatabase(): Promise<void> {
-  await pool.end();
+  await sqlClient.close({ timeout: 5 });
 }

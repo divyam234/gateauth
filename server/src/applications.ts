@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { and, asc, desc, eq, inArray, like, or } from "drizzle-orm";
 import { db, type DatabaseTransaction } from "./db.js";
 import {
@@ -141,7 +140,7 @@ async function replaceChildren(
   if (input.domains.length) {
     await tx.insert(applicationDomains).values(
       input.domains.map((hostname, index) => ({
-        id: randomUUID(),
+        id: crypto.randomUUID(),
         applicationId,
         hostname,
         isPrimary: index === 0,
@@ -152,7 +151,7 @@ async function replaceChildren(
   if (input.publicPaths.length) {
     await tx.insert(applicationRoutes).values(
       input.publicPaths.map((pathPattern) => ({
-        id: randomUUID(),
+        id: crypto.randomUUID(),
         applicationId,
         pathPattern,
         isPublic: true,
@@ -161,7 +160,7 @@ async function replaceChildren(
   }
 
   await tx.insert(accessPolicies).values({
-    id: randomUUID(),
+    id: crypto.randomUUID(),
     applicationId,
     ...input.policy,
   });
@@ -169,7 +168,7 @@ async function replaceChildren(
 
 export async function createApplication(input: ApplicationInput): Promise<ProtectedApplication> {
   const normalized = normalizeInput(input);
-  const id = randomUUID();
+  const id = crypto.randomUUID();
   await db.transaction(async (tx) => {
     await tx.insert(applications).values({
       id,
