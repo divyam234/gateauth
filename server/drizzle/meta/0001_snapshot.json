@@ -4,9 +4,9 @@
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "gatehouse.access_policies": {
+    "auth.access_policies": {
       "name": "access_policies",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -123,7 +123,7 @@
           "name": "access_policies_application_id_applications_id_fk",
           "tableFrom": "access_policies",
           "tableTo": "applications",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "application_id"
           ],
@@ -140,14 +140,14 @@
       "checkConstraints": {
         "access_policies_session_max_age_seconds_check": {
           "name": "access_policies_session_max_age_seconds_check",
-          "value": "\"gatehouse\".\"access_policies\".\"session_max_age_seconds\" IS NULL OR \"gatehouse\".\"access_policies\".\"session_max_age_seconds\" >= 60"
+          "value": "\"auth\".\"access_policies\".\"session_max_age_seconds\" IS NULL OR \"auth\".\"access_policies\".\"session_max_age_seconds\" >= 60"
         }
       },
       "isRLSEnabled": false
     },
-    "gatehouse.account": {
+    "auth.account": {
       "name": "account",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -251,7 +251,7 @@
           "name": "account_userId_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "userId"
           ],
@@ -268,9 +268,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.apikey": {
+    "auth.apikey": {
       "name": "apikey",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -459,9 +459,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.application_domains": {
+    "auth.application_domains": {
       "name": "application_domains",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -533,7 +533,7 @@
           "name": "application_domains_application_id_applications_id_fk",
           "tableFrom": "application_domains",
           "tableTo": "applications",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "application_id"
           ],
@@ -550,9 +550,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.application_routes": {
+    "auth.application_routes": {
       "name": "application_routes",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -609,7 +609,7 @@
           "name": "application_routes_application_id_applications_id_fk",
           "tableFrom": "application_routes",
           "tableTo": "applications",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "application_id"
           ],
@@ -635,9 +635,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.application_user_grants": {
+    "auth.application_user_grants": {
       "name": "application_user_grants",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -705,7 +705,7 @@
           "name": "application_user_grants_application_id_applications_id_fk",
           "tableFrom": "application_user_grants",
           "tableTo": "applications",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "application_id"
           ],
@@ -719,7 +719,7 @@
           "name": "application_user_grants_user_id_user_id_fk",
           "tableFrom": "application_user_grants",
           "tableTo": "user",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "user_id"
           ],
@@ -733,7 +733,7 @@
           "name": "application_user_grants_created_by_user_id_fk",
           "tableFrom": "application_user_grants",
           "tableTo": "user",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "created_by"
           ],
@@ -759,14 +759,14 @@
       "checkConstraints": {
         "application_user_grants_effect_check": {
           "name": "application_user_grants_effect_check",
-          "value": "\"gatehouse\".\"application_user_grants\".\"effect\" IN ('allow', 'deny')"
+          "value": "\"auth\".\"application_user_grants\".\"effect\" IN ('allow', 'deny')"
         }
       },
       "isRLSEnabled": false
     },
-    "gatehouse.applications": {
+    "auth.applications": {
       "name": "applications",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -876,14 +876,14 @@
       "checkConstraints": {
         "applications_last_health_status_check": {
           "name": "applications_last_health_status_check",
-          "value": "\"gatehouse\".\"applications\".\"last_health_status\" IN ('unknown', 'healthy', 'unhealthy')"
+          "value": "\"auth\".\"applications\".\"last_health_status\" IN ('unknown', 'healthy', 'unhealthy')"
         }
       },
       "isRLSEnabled": false
     },
-    "gatehouse.audit_events": {
+    "auth.audit_events": {
       "name": "audit_events",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1083,7 +1083,7 @@
           "name": "audit_events_actor_user_id_user_id_fk",
           "tableFrom": "audit_events",
           "tableTo": "user",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "actor_user_id"
           ],
@@ -1097,7 +1097,7 @@
           "name": "audit_events_application_id_applications_id_fk",
           "tableFrom": "audit_events",
           "tableTo": "applications",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "application_id"
           ],
@@ -1114,18 +1114,18 @@
       "checkConstraints": {
         "audit_events_outcome_check": {
           "name": "audit_events_outcome_check",
-          "value": "\"gatehouse\".\"audit_events\".\"outcome\" IN ('success', 'failure', 'denied')"
+          "value": "\"auth\".\"audit_events\".\"outcome\" IN ('success', 'failure', 'denied')"
         },
         "audit_events_severity_check": {
           "name": "audit_events_severity_check",
-          "value": "\"gatehouse\".\"audit_events\".\"severity\" IN ('info', 'warning', 'critical')"
+          "value": "\"auth\".\"audit_events\".\"severity\" IN ('info', 'warning', 'critical')"
         }
       },
       "isRLSEnabled": false
     },
-    "gatehouse.auth_settings": {
+    "auth.auth_settings": {
       "name": "auth_settings",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "key": {
           "name": "key",
@@ -1166,7 +1166,7 @@
           "name": "auth_settings_updated_by_user_id_fk",
           "tableFrom": "auth_settings",
           "tableTo": "user",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "updated_by"
           ],
@@ -1183,9 +1183,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.passkey": {
+    "auth.passkey": {
       "name": "passkey",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1291,7 +1291,7 @@
           "name": "passkey_userId_user_id_fk",
           "tableFrom": "passkey",
           "tableTo": "user",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "userId"
           ],
@@ -1308,9 +1308,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.rateLimit": {
+    "auth.rateLimit": {
       "name": "rateLimit",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1353,9 +1353,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.session": {
+    "auth.session": {
       "name": "session",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1453,7 +1453,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"gatehouse\".\"session\".\"mfaVerifiedAt\" IS NOT NULL",
+          "where": "\"auth\".\"session\".\"mfaVerifiedAt\" IS NOT NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -1464,7 +1464,7 @@
           "name": "session_userId_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "userId"
           ],
@@ -1489,9 +1489,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.twoFactor": {
+    "auth.twoFactor": {
       "name": "twoFactor",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1574,7 +1574,7 @@
           "name": "twoFactor_userId_user_id_fk",
           "tableFrom": "twoFactor",
           "tableTo": "user",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "userId"
           ],
@@ -1591,9 +1591,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.user": {
+    "auth.user": {
       "name": "user",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1689,9 +1689,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.verification": {
+    "auth.verification": {
       "name": "verification",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1756,9 +1756,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.webhook_deliveries": {
+    "auth.webhook_deliveries": {
       "name": "webhook_deliveries",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1829,7 +1829,7 @@
             }
           ],
           "isUnique": false,
-          "where": "\"gatehouse\".\"webhook_deliveries\".\"delivered_at\" IS NULL",
+          "where": "\"auth\".\"webhook_deliveries\".\"delivered_at\" IS NULL",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -1840,7 +1840,7 @@
           "name": "webhook_deliveries_webhook_id_webhooks_id_fk",
           "tableFrom": "webhook_deliveries",
           "tableTo": "webhooks",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "webhook_id"
           ],
@@ -1854,7 +1854,7 @@
           "name": "webhook_deliveries_audit_event_id_audit_events_id_fk",
           "tableFrom": "webhook_deliveries",
           "tableTo": "audit_events",
-          "schemaTo": "gatehouse",
+          "schemaTo": "auth",
           "columnsFrom": [
             "audit_event_id"
           ],
@@ -1871,9 +1871,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "gatehouse.webhooks": {
+    "auth.webhooks": {
       "name": "webhooks",
-      "schema": "gatehouse",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -1939,7 +1939,7 @@
   },
   "enums": {},
   "schemas": {
-    "gatehouse": "gatehouse"
+    "auth": "auth"
   },
   "sequences": {},
   "roles": {},

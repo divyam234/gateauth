@@ -15,11 +15,11 @@ import {
 
 const timestampTz = (name: string) => timestamp(name, { withTimezone: true, mode: "date" });
 
-export const gatehouseSchema = pgSchema("gatehouse");
+export const authSchema = pgSchema("auth");
 
 // Better Auth tables. The physical table/column names intentionally preserve the
 // existing Gatehouse schema while the TypeScript keys match Better Auth's models.
-export const user = gatehouseSchema.table("user", {
+export const user = authSchema.table("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
@@ -34,7 +34,7 @@ export const user = gatehouseSchema.table("user", {
   banExpires: timestampTz("banExpires"),
 });
 
-export const session = gatehouseSchema.table(
+export const session = authSchema.table(
   "session",
   {
     id: text("id").primaryKey(),
@@ -59,7 +59,7 @@ export const session = gatehouseSchema.table(
   ],
 );
 
-export const account = gatehouseSchema.table(
+export const account = authSchema.table(
   "account",
   {
     id: text("id").primaryKey(),
@@ -81,7 +81,7 @@ export const account = gatehouseSchema.table(
   (table) => [index("account_userId_idx").on(table.userId)],
 );
 
-export const verification = gatehouseSchema.table(
+export const verification = authSchema.table(
   "verification",
   {
     id: text("id").primaryKey(),
@@ -94,7 +94,7 @@ export const verification = gatehouseSchema.table(
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const passkey = gatehouseSchema.table(
+export const passkey = authSchema.table(
   "passkey",
   {
     id: text("id").primaryKey(),
@@ -117,7 +117,7 @@ export const passkey = gatehouseSchema.table(
   ],
 );
 
-export const twoFactor = gatehouseSchema.table(
+export const twoFactor = authSchema.table(
   "twoFactor",
   {
     id: text("id").primaryKey(),
@@ -137,7 +137,7 @@ export const twoFactor = gatehouseSchema.table(
   ],
 );
 
-export const apikey = gatehouseSchema.table(
+export const apikey = authSchema.table(
   "apikey",
   {
     id: text("id").primaryKey(),
@@ -170,14 +170,14 @@ export const apikey = gatehouseSchema.table(
   ],
 );
 
-export const rateLimit = gatehouseSchema.table("rateLimit", {
+export const rateLimit = authSchema.table("rateLimit", {
   id: text("id").primaryKey(),
   key: text("key").notNull().unique(),
   count: integer("count").notNull(),
   lastRequest: bigint("lastRequest", { mode: "number" }).notNull(),
 });
 
-export const authSettings = gatehouseSchema.table("auth_settings", {
+export const authSettings = authSchema.table("auth_settings", {
   key: text("key").primaryKey(),
   value: jsonb("value").$type<unknown>().notNull(),
   isSecret: boolean("is_secret").notNull().default(false),
@@ -185,7 +185,7 @@ export const authSettings = gatehouseSchema.table("auth_settings", {
   updatedAt: timestampTz("updated_at").notNull().defaultNow(),
 });
 
-export const applications = gatehouseSchema.table(
+export const applications = authSchema.table(
   "applications",
   {
     id: text("id").primaryKey(),
@@ -214,7 +214,7 @@ export const applications = gatehouseSchema.table(
   ],
 );
 
-export const applicationDomains = gatehouseSchema.table(
+export const applicationDomains = authSchema.table(
   "application_domains",
   {
     id: text("id").primaryKey(),
@@ -231,7 +231,7 @@ export const applicationDomains = gatehouseSchema.table(
   ],
 );
 
-export const applicationRoutes = gatehouseSchema.table(
+export const applicationRoutes = authSchema.table(
   "application_routes",
   {
     id: text("id").primaryKey(),
@@ -251,7 +251,7 @@ export const applicationRoutes = gatehouseSchema.table(
   ],
 );
 
-export const accessPolicies = gatehouseSchema.table(
+export const accessPolicies = authSchema.table(
   "access_policies",
   {
     id: text("id").primaryKey(),
@@ -282,7 +282,7 @@ export const accessPolicies = gatehouseSchema.table(
   ],
 );
 
-export const applicationUserGrants = gatehouseSchema.table(
+export const applicationUserGrants = authSchema.table(
   "application_user_grants",
   {
     id: text("id").primaryKey(),
@@ -307,7 +307,7 @@ export const applicationUserGrants = gatehouseSchema.table(
   ],
 );
 
-export const auditEvents = gatehouseSchema.table(
+export const auditEvents = authSchema.table(
   "audit_events",
   {
     id: text("id").primaryKey().default(sql`gen_random_uuid()::text`),
@@ -340,7 +340,7 @@ export const auditEvents = gatehouseSchema.table(
   ],
 );
 
-export const webhooks = gatehouseSchema.table("webhooks", {
+export const webhooks = authSchema.table("webhooks", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   url: text("url").notNull(),
@@ -351,7 +351,7 @@ export const webhooks = gatehouseSchema.table("webhooks", {
   updatedAt: timestampTz("updated_at").notNull().defaultNow(),
 });
 
-export const webhookDeliveries = gatehouseSchema.table(
+export const webhookDeliveries = authSchema.table(
   "webhook_deliveries",
   {
     id: text("id").primaryKey(),

@@ -11,7 +11,11 @@ export async function runMigrations(): Promise<void> {
 
   try {
     await client`SELECT pg_advisory_lock(${migrationLockId})`;
-    await migrate(migrationDb, { migrationsFolder });
+    await migrate(migrationDb, {
+      migrationsFolder,
+      migrationsSchema: "auth",
+      migrationsTable: "migrations",
+    });
   } finally {
     await client`SELECT pg_advisory_unlock(${migrationLockId})`.catch(() => undefined);
     client.release();
