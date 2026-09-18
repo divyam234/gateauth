@@ -4,16 +4,16 @@ The included `Caddyfile` protects `app.localhost`.
 
 ## Request flow
 
-1. Gatehouse-owned routes such as `/login`, `/two-factor`, `/admin/*`, and `/api/auth/*` go directly to Gatehouse.
+1. GateAuth-owned routes such as `/login`, `/two-factor`, `/admin/*`, and `/api/auth/*` go directly to GateAuth.
 2. Caddy removes every incoming `X-Auth-*` identity header.
-3. `forward_auth` calls Gatehouse at `/api/verify?application=default-app`.
+3. `forward_auth` calls GateAuth at `/api/verify?application=default-app`.
 4. Caddy copies only the authorization response headers.
 5. On a 2xx decision, the original request is proxied to the upstream application.
 6. Non-2xx decisions are returned without contacting the upstream.
 
 ## Protecting multiple hosts
 
-Create one application in Gatehouse for each policy boundary, then map the Caddy site to the application slug:
+Create one application in GateAuth for each policy boundary, then map the Caddy site to the application slug:
 
 ```caddyfile
 reports.example.com {
@@ -24,7 +24,7 @@ reports.example.com {
     request_header -X-Auth-MFA
     request_header -X-Auth-Method
 
-    forward_auth gatehouse:8080 {
+    forward_auth gateauth:8080 {
         uri /api/verify?application=reports
         copy_headers X-Auth-User-Id X-Auth-User-Email X-Auth-User-Name X-Auth-User-Role X-Auth-MFA X-Auth-Method X-Auth-Application-Id X-Auth-Application-Slug X-Auth-Public X-Auth-Reason
     }
@@ -35,11 +35,11 @@ reports.example.com {
 
 A slug is stable and suitable for configuration. Application display names, domains, upstream health paths, and policy can change in the console.
 
-Gatehouse can also resolve by forwarded host when `application` is omitted, but explicit slugs avoid ambiguity.
+GateAuth can also resolve by forwarded host when `application` is omitted, but explicit slugs avoid ambiguity.
 
-## Gatehouse routes on a protected host
+## GateAuth routes on a protected host
 
-The included configuration routes these paths to Gatehouse before forward-auth:
+The included configuration routes these paths to GateAuth before forward-auth:
 
 ```text
 /login
@@ -56,7 +56,7 @@ The included configuration routes these paths to Gatehouse before forward-auth:
 /assets/*
 ```
 
-Keep `/api/admin/*` behind Gatehouse's own administrator session checks. It must bypass the upstream application's forward-auth loop but is not publicly authorized.
+Keep `/api/admin/*` behind GateAuth's own administrator session checks. It must bypass the upstream application's forward-auth loop but is not publicly authorized.
 
 ## Identity headers
 

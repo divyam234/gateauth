@@ -3,7 +3,7 @@
 ## Startup order
 
 1. PostgreSQL becomes healthy.
-2. Gatehouse acquires a PostgreSQL advisory lock and applies pending migrations.
+2. GateAuth acquires a PostgreSQL advisory lock and applies pending migrations.
 3. Safe runtime configuration defaults are inserted idempotently.
 4. Optional administrator and default-application bootstrap runs idempotently.
 5. Audit retention cleanup runs at startup and every 24 hours.
@@ -13,25 +13,25 @@ Set `RUN_MIGRATIONS=false` when migrations are performed by a separate release j
 
 ## Backups
 
-Gatehouse stores identities and application policy in PostgreSQL. Back up the complete database so related records stay consistent.
+GateAuth stores identities and application policy in PostgreSQL. Back up the complete database so related records stay consistent.
 
 ```bash
 pg_dump \
   --format=custom \
   --no-owner \
-  --file=gatehouse-$(date +%F).dump \
+  --file=gateauth-$(date +%F).dump \
   "$DATABASE_URL"
 ```
 
 Restore into an empty database:
 
 ```bash
-createdb gatehouse_restore
+createdb gateauth_restore
 pg_restore \
   --no-owner \
   --clean --if-exists \
-  --dbname=gatehouse_restore \
-  gatehouse-YYYY-MM-DD.dump
+  --dbname=gateauth_restore \
+  gateauth-YYYY-MM-DD.dump
 ```
 
 Validate a restore before relying on it:
@@ -62,14 +62,14 @@ The browser receives only capability booleans and runtime settings. Provider and
 
 ## Email delivery
 
-In production, configure `MAIL_WEBHOOK_URL`. Gatehouse sends a JSON POST containing:
+In production, configure `MAIL_WEBHOOK_URL`. GateAuth sends a JSON POST containing:
 
 ```json
 {
-  "from": "Gatehouse <noreply@example.com>",
+  "from": "GateAuth <noreply@example.com>",
   "kind": "verification",
   "to": "user@example.com",
-  "subject": "Gatehouse: verify your email",
+  "subject": "GateAuth: verify your email",
   "text": "...",
   "html": "...",
   "metadata": {}
@@ -82,16 +82,16 @@ Console delivery is controlled by `ALLOW_DEVELOPMENT_MAIL_LOG`; it defaults off 
 
 ## Trusted proxy boundary
 
-Gatehouse uses configured forwarded headers for client IP and application routing. Therefore:
+GateAuth uses configured forwarded headers for client IP and application routing. Therefore:
 
-- keep the Gatehouse service on an internal network;
+- keep the GateAuth service on an internal network;
 - expose only Caddy or another trusted edge;
 - remove all incoming `X-Auth-*` identity headers;
 - overwrite forwarding headers at the edge;
 - use TLS externally;
 - set `TRUSTED_IP_HEADERS` to headers your edge actually controls.
 
-If Gatehouse must be exposed directly, set `TRUST_PROXY_HEADERS=false` and do not use client-IP policy until the deployment has a trustworthy network boundary.
+If GateAuth must be exposed directly, set `TRUST_PROXY_HEADERS=false` and do not use client-IP policy until the deployment has a trustworthy network boundary.
 
 ## Health checks
 
@@ -117,4 +117,4 @@ From the admin console an operator can:
 - tighten role/domain/CIDR/MFA/session-age policy;
 - export the audit log.
 
-For suspected edge compromise, rotate edge credentials, remove direct access to Gatehouse, revoke sessions and API keys, and inspect audit events for forged forwarding metadata.
+For suspected edge compromise, rotate edge credentials, remove direct access to GateAuth, revoke sessions and API keys, and inspect audit events for forged forwarding metadata.

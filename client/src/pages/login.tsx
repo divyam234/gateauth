@@ -226,7 +226,7 @@ export function LoginPage() {
           <div className="mx-auto mb-2 flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
             <ShieldCheck className="size-5" aria-hidden="true" />
           </div>
-          <p className="text-xs font-medium text-muted-foreground">Gatehouse · Secure access</p>
+          <p className="text-xs font-medium text-muted-foreground">GateAuth · Secure access</p>
           <CardTitle className="text-2xl font-semibold tracking-tight">{heading}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>

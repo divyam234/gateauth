@@ -101,7 +101,7 @@ const application = {
 
 const config = {
   config: {
-    brandingName: "Gatehouse",
+    brandingName: "GateAuth",
     environmentLabel: "Test",
     allowPublicSignup: true,
     defaultRequireMfa: false,
@@ -341,7 +341,7 @@ describe("admin control plane", () => {
 
   it("shows safe runtime settings and deployment capabilities", async () => {
     await renderPage(AdminConfigPage)
-    expect(await screen.findByDisplayValue("Gatehouse")).toBeInTheDocument()
+    expect(await screen.findByDisplayValue("GateAuth")).toBeInTheDocument()
     expect(screen.getByText("Runtime capabilities")).toBeInTheDocument()
     expect(screen.getByText(/Provider credentials remain server-side/)).toBeInTheDocument()
   })

@@ -108,8 +108,8 @@ export function ConnectedAccounts() {
             Connected accounts
           </CardTitle>
           <CardDescription>
-            Use multiple sign-in methods for the same Gatehouse identity. Social accounts must
-            return the same verified email address.
+            Use multiple sign-in methods for the same GateAuth identity. Social accounts must return
+            the same verified email address.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
@@ -224,7 +224,7 @@ export function ConnectedAccounts() {
           if (!open) setUnlinkTarget(null)
         }}
         title={`Disconnect ${providerLabel(unlinkTarget?.providerId ?? "account")}?`}
-        description="You will no longer be able to sign in with this provider. Your Gatehouse account and other sign-in methods will remain active."
+        description="You will no longer be able to sign in with this provider. Your GateAuth account and other sign-in methods will remain active."
         confirmLabel="Disconnect account"
         onConfirm={() => {
           if (unlinkTarget) unlinkMutation.mutate(unlinkTarget)

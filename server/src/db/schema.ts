@@ -18,7 +18,7 @@ const timestampTz = (name: string) => timestamp(name, { withTimezone: true, mode
 export const authSchema = pgSchema("auth");
 
 // Better Auth tables. The physical table/column names intentionally preserve the
-// existing Gatehouse schema while the TypeScript keys match Better Auth's models.
+// existing GateAuth schema while the TypeScript keys match Better Auth's models.
 export const user = authSchema.table("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),

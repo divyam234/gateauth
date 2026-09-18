@@ -18,7 +18,7 @@ const authMocks = vi.hoisted(() => ({
   enable: vi.fn(async () => ({
     data: {
       method: "totp" as const,
-      totpURI: "otpauth://totp/Gatehouse:test@example.com?secret=ABC123&issuer=Gatehouse",
+      totpURI: "otpauth://totp/GateAuth:test@example.com?secret=ABC123&issuer=GateAuth",
       backupCodes: ["backup-1", "backup-2"],
     },
     error: null,
@@ -62,7 +62,7 @@ import { TwoFactorManager } from "../components/security/two-factor-manager"
 import TwoFactorPage from "../pages/two-factor"
 
 async function renderChallenge(methods: string[]) {
-  sessionStorage.setItem("gatehouse:two-factor-methods", JSON.stringify(methods))
+  sessionStorage.setItem("gateauth:two-factor-methods", JSON.stringify(methods))
   const rootRoute = createRootRoute()
   const loginRoute = createRoute({
     getParentRoute: () => rootRoute,

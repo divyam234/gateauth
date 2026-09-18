@@ -3,9 +3,9 @@
 }
 
 http://app.localhost {
-    # Gatehouse owns its SPA and Better Auth API routes on the protected host.
-    @gatehouse path /login /verify-otp /two-factor /dashboard /admin /admin/* /api/auth/* /api/public/* /api/admin/* /api/health /api/ready /assets/* /favicon.svg
-    handle @gatehouse {
+    # GateAuth owns its SPA and Better Auth API routes on the protected host.
+    @gateauth path /login /verify-otp /two-factor /dashboard /admin /admin/* /api/auth/* /api/public/* /api/admin/* /api/health /api/ready /assets/* /favicon.svg
+    handle @gateauth {
         reverse_proxy {$AUTH_SERVER:http://auth-server:8080}
     }
 

@@ -8,7 +8,7 @@ permissions:
   packages: write
 
 env:
-  IMAGE: ghcr.io/divyam234/gatehouse
+  IMAGE: ghcr.io/divyam234/gateauth
 
 jobs:
   build:

@@ -24,4 +24,4 @@ bun run --cwd "$ROOT/client" test
 printf '%s\n' '==> Client production build'
 bun run --cwd "$ROOT/client" build
 
-printf '%s\n' '==> Gatehouse verification complete'
+printf '%s\n' '==> GateAuth verification complete'

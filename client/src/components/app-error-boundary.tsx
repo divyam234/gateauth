@@ -37,7 +37,7 @@ export class AppErrorBoundary extends Component<AppErrorBoundaryProps, AppErrorB
           <div className="flex size-11 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
             <AlertTriangle className="size-5" aria-hidden="true" />
           </div>
-          <h1 className="mt-5 text-xl font-semibold">Gatehouse could not render this screen</h1>
+          <h1 className="mt-5 text-xl font-semibold">GateAuth could not render this screen</h1>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Reload the application. If the problem persists, check the browser console and server
             logs using the request timestamp.

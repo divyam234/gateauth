@@ -5,7 +5,7 @@ import * as schema from "./db/schema.js";
 
 function databaseUrlWithSessionOptions(databaseURL: string): string {
   const url = new URL(databaseURL);
-  url.searchParams.set("application_name", "gatehouse-auth");
+  url.searchParams.set("application_name", "gateauth");
 
   const existingOptions = url.searchParams.get("options")?.trim();
   const statementTimeout = `-c statement_timeout=${env.databaseStatementTimeoutMs}`;

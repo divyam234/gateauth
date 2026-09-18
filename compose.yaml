@@ -1,17 +1,17 @@
-name: gatehouse
+name: gateauth
 
 services:
   postgres:
     image: postgres:18.6-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: gatehouse
-      POSTGRES_USER: gatehouse
+      POSTGRES_DB: gateauth
+      POSTGRES_USER: gateauth
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gatehouse -d gatehouse"]
+      test: ["CMD-SHELL", "pg_isready -U gateauth -d gateauth"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -25,10 +25,10 @@ services:
     environment:
       NODE_ENV: production
       PORT: 8080
-      APP_NAME: ${APP_NAME:-Gatehouse}
+      APP_NAME: ${APP_NAME:-GateAuth}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://app.localhost}
-      DATABASE_URL: postgresql://gatehouse:${POSTGRES_PASSWORD}@postgres:5432/gatehouse
+      DATABASE_URL: postgresql://gateauth:${POSTGRES_PASSWORD}@postgres:5432/gateauth
       DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-20}
       RUN_MIGRATIONS: "true"
       TRUST_PROXY_HEADERS: "true"
@@ -44,7 +44,7 @@ services:
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
       MAIL_WEBHOOK_URL: ${MAIL_WEBHOOK_URL:-}
       MAIL_WEBHOOK_TOKEN: ${MAIL_WEBHOOK_TOKEN:-}
-      EMAIL_FROM: ${EMAIL_FROM:-Gatehouse <noreply@example.invalid>}
+      EMAIL_FROM: ${EMAIL_FROM:-GateAuth <noreply@example.invalid>}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?Set SEED_ADMIN_PASSWORD in .env}
       SEED_DEFAULT_APPLICATION: "true"

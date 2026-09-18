@@ -1,6 +1,6 @@
-# Gatehouse
+# GateAuth
 
-Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway built with Better Auth, Bun, React, and Caddy. Bun provides the HTTP server/router and PostgreSQL client, while Drizzle owns the schema and migrations. Gatehouse protects upstream applications from one admin console and stores authentication, policy, sessions, API keys, and audit history in PostgreSQL.
+GateAuth is a PostgreSQL-backed identity control plane and forward-auth gateway built with Better Auth, Bun, React, and Caddy. Bun provides the HTTP server/router and PostgreSQL client, while Drizzle owns the schema and migrations. GateAuth protects upstream applications from one admin console and stores authentication, policy, sessions, API keys, and audit history in PostgreSQL.
 
 ## Core features
 
@@ -11,7 +11,7 @@ Gatehouse is a PostgreSQL-backed identity control plane and forward-auth gateway
 - Access policy for roles, email domains, CIDR ranges, MFA, session age, and per-user grants
 - Admin console for applications, users, sessions, API keys, audit logs, and runtime settings
 - PostgreSQL-backed sessions, policy, audit events, rate limits, and migrations
-- Docker Compose setup with Caddy, Gatehouse, PostgreSQL, and a sample protected upstream
+- Docker Compose setup with Caddy, GateAuth, PostgreSQL, and a sample protected upstream
 
 ## Architecture
 
@@ -20,10 +20,10 @@ Browser / API client
         |
         v
 Caddy (public entry point)
-  | Gatehouse routes ----------------------.
+  | GateAuth routes ----------------------.
   |                                        |
   | forward_auth /api/verify               v
-  '---------------------------------> Gatehouse Bun server
+  '---------------------------------> GateAuth Bun server
                                           |  Better Auth
                                           |  Policy engine
                                           |  Admin API + SPA
@@ -34,7 +34,7 @@ Caddy (public entry point)
 Authorized requests -> protected upstream application
 ```
 
-Caddy sends requests to `/api/verify?application=<slug>`, copies only Gatehouse-produced identity headers, and proxies authorized requests to the upstream. Application policy stays in PostgreSQL and can change without editing Caddy.
+Caddy sends requests to `/api/verify?application=<slug>`, copies only GateAuth-produced identity headers, and proxies authorized requests to the upstream. Application policy stays in PostgreSQL and can change without editing Caddy.
 
 ## Quick start with Docker Compose
 
@@ -50,7 +50,7 @@ docker compose up --build
 Open `http://app.localhost/login`. Compose creates:
 
 - PostgreSQL 18.6
-- Gatehouse server and built React application
+- GateAuth server and built React application
 - a sample `traefik/whoami` protected upstream
 - Caddy on ports 80 and 443
 
@@ -80,7 +80,7 @@ Vite proxies `/api/auth`, `/api/verify`, and `/api/admin` to `http://localhost:8
 
 ## Database schema and migrations
 
-`server/src/db/schema.ts` defines Better Auth and Gatehouse tables. Better Auth uses the official Drizzle adapter against that schema, and Drizzle Kit writes generated migrations to `server/drizzle`.
+`server/src/db/schema.ts` defines Better Auth and GateAuth tables. Better Auth uses the official Drizzle adapter against that schema, and Drizzle Kit writes generated migrations to `server/drizzle`.
 
 ```bash
 bun run --cwd server db:generate   # create a migration after changing the schema
@@ -97,7 +97,7 @@ When `RUN_MIGRATIONS=true`, the server applies pending Drizzle migrations automa
 GET /api/verify?application=default-app
 ```
 
-Gatehouse also accepts application resolution from `X-Auth-Application` or the forwarded host. It uses the original forwarded path for public-route and policy decisions.
+GateAuth also accepts application resolution from `X-Auth-Application` or the forwarded host. It uses the original forwarded path for public-route and policy decisions.
 
 Successful decisions may return:
 
@@ -117,7 +117,7 @@ Never trust these headers from an internet client. Strip them at the edge and co
 
 ## Account linking
 
-Gatehouse keeps one local user identity with multiple Better Auth account records.
+GateAuth keeps one local user identity with multiple Better Auth account records.
 
 - A Google or GitHub login can join an existing user only when the provider returns the same verified email and the local email is already verified.
 - Signed-in users can connect another configured provider from the dashboard. The provider must return the same verified email.
@@ -129,8 +129,8 @@ Gatehouse keeps one local user identity with multiple Better Auth account record
 OAuth redirect URIs remain:
 
 ```text
-https://your-gatehouse.example/api/auth/callback/google
-https://your-gatehouse.example/api/auth/callback/github
+https://your-gateauth.example/api/auth/callback/google
+https://your-gateauth.example/api/auth/callback/github
 ```
 
 ## Important environment variables
@@ -139,9 +139,9 @@ https://your-gatehouse.example/api/auth/callback/github
 |---|---|
 | `DATABASE_URL` | PostgreSQL connection string |
 | `BETTER_AUTH_SECRET` | Better Auth signing/encryption secret; mandatory in production |
-| `BETTER_AUTH_URL` | Public Gatehouse origin |
+| `BETTER_AUTH_URL` | Public GateAuth origin |
 | `TRUSTED_ORIGINS`, `CORS_ORIGINS` | Comma-separated allowed origins |
-| `TRUST_PROXY_HEADERS` | Trust proxy-provided client metadata; keep Gatehouse private behind the edge proxy |
+| `TRUST_PROXY_HEADERS` | Trust proxy-provided client metadata; keep GateAuth private behind the edge proxy |
 | `TRUSTED_IP_HEADERS` | Ordered client-IP headers accepted from the trusted proxy |
 | `REQUIRE_EMAIL_VERIFICATION` | Require verified email before normal password access |
 | `ENABLE_HIBP` | Enable compromised-password checks |
@@ -180,7 +180,7 @@ No SQLite fallback or database mock is used.
 
 ## Production notes
 
-- Do not expose the Gatehouse container directly when `TRUST_PROXY_HEADERS=true`.
+- Do not expose the GateAuth container directly when `TRUST_PROXY_HEADERS=true`.
 - Require TLS at the external edge outside local development.
 - Configure real email delivery before requiring verification, magic links, resets, or email MFA.
 - Back up PostgreSQL, not individual application files.

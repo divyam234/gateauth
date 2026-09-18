@@ -26,7 +26,7 @@ export const authClient = createAuthClient({
       onTwoFactorRedirect: ({ twoFactorMethods }) => {
         if (typeof sessionStorage !== "undefined") {
           sessionStorage.setItem(
-            "gatehouse:two-factor-methods",
+            "gateauth:two-factor-methods",
             JSON.stringify(twoFactorMethods ?? []),
           )
         }

@@ -9,7 +9,7 @@ export default defineConfig({
     table: "migrations",
   },
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/gatehouse",
+    url: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/gateauth",
   },
   strict: true,
   verbose: true,

@@ -295,7 +295,7 @@ export function AdminApiKeysPage() {
           <DialogHeader>
             <DialogTitle>API key created</DialogTitle>
             <DialogDescription>
-              Copy this secret now. Gatehouse will not display it again.
+              Copy this secret now. GateAuth will not display it again.
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center gap-2">

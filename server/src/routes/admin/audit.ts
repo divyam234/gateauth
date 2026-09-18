@@ -90,7 +90,7 @@ export function registerAuditAdminRoutes(app: BunRouter): void {
     c.header("content-type", "text/csv; charset=utf-8");
     c.header(
       "content-disposition",
-      `attachment; filename="gatehouse-audit-${new Date().toISOString().slice(0, 10)}.csv"`,
+      `attachment; filename="gateauth-audit-${new Date().toISOString().slice(0, 10)}.csv"`,
     );
     return c.body(lines.join("\n"));
   });

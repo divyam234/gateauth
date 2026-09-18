@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "gatehouse",
+      "name": "gateauth",
     },
     "client": {
       "name": "client",

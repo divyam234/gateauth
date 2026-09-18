@@ -61,7 +61,7 @@ export function GlobalSearch({
         if (nextOpen) onOpenChange(true)
         else close()
       }}
-      title="Search Gatehouse"
+      title="Search GateAuth"
       description="Search users, applications, and audit events."
       className="top-[18%] max-w-xl translate-y-0"
       commandProps={{ shouldFilter: false }}

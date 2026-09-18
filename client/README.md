@@ -1,6 +1,6 @@
-# Gatehouse client
+# GateAuth client
 
-Gatehouse client built with React 19, TanStack Query, TanStack Router file-based routing, Tailwind CSS 4, Biome, and Better Auth client integration.
+GateAuth client built with React 19, TanStack Query, TanStack Router file-based routing, Tailwind CSS 4, Biome, and Better Auth client integration.
 
 Use the repository-level [README](../README.md) for setup and architecture.
 

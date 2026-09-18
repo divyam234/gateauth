@@ -281,7 +281,7 @@ export function AdminApplicationsPage() {
                 </EmptyMedia>
                 <EmptyTitle>No protected applications</EmptyTitle>
                 <EmptyDescription>
-                  Create the first upstream and Gatehouse will issue application-aware decisions to
+                  Create the first upstream and GateAuth will issue application-aware decisions to
                   your reverse proxy.
                 </EmptyDescription>
               </EmptyHeader>

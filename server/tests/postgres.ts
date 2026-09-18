@@ -97,7 +97,7 @@ export async function startTestPostgres(): Promise<TestPostgres> {
   }
 
   const tempRoot = process.env.TMPDIR || "/tmp";
-  const workDir = command("mktemp", ["-d", `${tempRoot.replace(/\/$/, "")}/gatehouse-pg-XXXXXX`]).trim();
+  const workDir = command("mktemp", ["-d", `${tempRoot.replace(/\/$/, "")}/gateauth-pg-XXXXXX`]).trim();
   const postgresHome = await resolvePostgresHome(workDir);
   const dataDir = `${workDir}/data`;
   const logFile = `${workDir}/postgres.log`;
@@ -127,12 +127,12 @@ export async function startTestPostgres(): Promise<TestPostgres> {
   );
   command(
     bin("createdb"),
-    ["-h", "127.0.0.1", "-p", String(port), "-U", "postgres", "gatehouse_test"],
+    ["-h", "127.0.0.1", "-p", String(port), "-U", "postgres", "gateauth_test"],
     { uid, gid },
   );
 
   return {
-    databaseURL: `postgresql://postgres@127.0.0.1:${port}/gatehouse_test`,
+    databaseURL: `postgresql://postgres@127.0.0.1:${port}/gateauth_test`,
     async stop() {
       try {
         command(bin("pg_ctl"), ["-D", dataDir, "stop", "-m", "fast", "-w"], { uid, gid });

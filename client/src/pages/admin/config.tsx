@@ -67,7 +67,7 @@ function asBoolean(value: ConfigMap[string], fallback = false) {
 
 function getConfigFormValues(data: ConfigResponse): ConfigFormValues {
   return {
-    brandingName: asString(data.config.brandingName, "Gatehouse"),
+    brandingName: asString(data.config.brandingName, "GateAuth"),
     environmentLabel: asString(data.config.environmentLabel, "Production"),
     allowPublicSignup: asBoolean(data.config.allowPublicSignup, true),
     defaultRequireMfa: asBoolean(data.config.defaultRequireMfa),

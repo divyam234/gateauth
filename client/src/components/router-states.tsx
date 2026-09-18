@@ -15,7 +15,7 @@ export function RoutePendingState() {
     <StateShell>
       <div className="flex items-center gap-3 text-sm text-muted-foreground" role="status">
         <Spinner className="size-5" />
-        Loading Gatehouse…
+        Loading GateAuth…
       </div>
     </StateShell>
   )
@@ -56,7 +56,7 @@ export function RouteNotFoundState() {
             <SearchX className="size-5" />
           </div>
           <CardTitle>Page not found</CardTitle>
-          <CardDescription>The requested Gatehouse route does not exist.</CardDescription>
+          <CardDescription>The requested GateAuth route does not exist.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button render={<Link to="/dashboard" />}>

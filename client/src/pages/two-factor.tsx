@@ -14,7 +14,7 @@ import { twoFactor } from "@/lib/auth-client"
 function readChallengeMethods(): string[] {
   if (typeof sessionStorage === "undefined") return ["totp"]
   try {
-    const value = JSON.parse(sessionStorage.getItem("gatehouse:two-factor-methods") || "[]")
+    const value = JSON.parse(sessionStorage.getItem("gateauth:two-factor-methods") || "[]")
     return Array.isArray(value) && value.length ? value : ["totp"]
   } catch {
     return ["totp"]
@@ -42,7 +42,7 @@ export function TwoFactorPage() {
             ? await twoFactor.verifyOtp({ code: code.trim(), trustDevice })
             : await twoFactor.verifyBackupCode({ code: code.trim(), trustDevice })
       if (result.error) throw new Error(result.error.message || "Verification failed")
-      sessionStorage.removeItem("gatehouse:two-factor-methods")
+      sessionStorage.removeItem("gateauth:two-factor-methods")
       toast.success("Two-factor verification complete")
       navigate({ to: "/dashboard" })
     } catch (error) {

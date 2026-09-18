@@ -32,7 +32,7 @@ export const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   isProduction,
   port: numberFromEnv("PORT", 8080),
-  appName: process.env.APP_NAME || "Gatehouse",
+  appName: process.env.APP_NAME || "GateAuth",
   baseURL,
   secret,
   databaseURL:
@@ -60,7 +60,7 @@ export const env = {
   sessionUpdateAgeSeconds: numberFromEnv("SESSION_UPDATE_AGE_SECONDS", 60 * 60 * 24),
   mailWebhookURL: process.env.MAIL_WEBHOOK_URL || "",
   mailWebhookToken: process.env.MAIL_WEBHOOK_TOKEN || "",
-  emailFrom: process.env.EMAIL_FROM || "Gatehouse <noreply@example.invalid>",
+  emailFrom: process.env.EMAIL_FROM || "GateAuth <noreply@example.invalid>",
   allowDevelopmentMailLog: booleanFromEnv("ALLOW_DEVELOPMENT_MAIL_LOG", !isProduction),
   runMigrations: booleanFromEnv("RUN_MIGRATIONS", true),
   seedAdminEmail: process.env.SEED_ADMIN_EMAIL || "",

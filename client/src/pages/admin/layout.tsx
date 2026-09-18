@@ -149,7 +149,7 @@ export function AdminLayout() {
   }
 
   const branding =
-    typeof config?.config.brandingName === "string" ? config.config.brandingName : "Gatehouse"
+    typeof config?.config.brandingName === "string" ? config.config.brandingName : "GateAuth"
   const environment =
     typeof config?.config.environmentLabel === "string"
       ? config.config.environmentLabel
