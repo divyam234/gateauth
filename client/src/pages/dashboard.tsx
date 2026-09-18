@@ -157,13 +157,7 @@ export function DashboardPage() {
     }
   }
 
-  if (isPending) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="size-6" />
-      </div>
-    )
-  }
+  if (isPending) return null
 
   if (!session) return null
 

@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Spinner } from "@/components/ui/spinner"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { authClient, sendVerificationOtp, signIn, signUp, useSession } from "@/lib/auth-client"
+import { authClient, sendVerificationOtp, signIn, signUp } from "@/lib/auth-client"
 import { usePublicAuthConfig, validateRedirectTarget } from "@/lib/public-api"
 
 type AuthMode = "signin" | "signup" | "magic-link" | "otp"
@@ -47,7 +47,6 @@ function submitLabel(mode: AuthMode) {
 export function LoginPage() {
   const navigate = useNavigate()
   const search = useSearch({ strict: false }) as { application?: string; redirect?: string }
-  const { data: session, isPending: sessionPending } = useSession()
   const [mode, setMode] = useState<AuthMode>("signin")
   const [showPassword, setShowPassword] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
@@ -73,20 +72,6 @@ export function LoginPage() {
   const socialProviders = SOCIAL_PROVIDERS.filter(
     (provider) => publicAuth?.capabilities[provider.id] === true,
   )
-
-  useEffect(() => {
-    if (sessionPending || !session) return
-    void (async () => {
-      if (search.application && search.redirect) {
-        const target = await validateRedirectTarget(search.application, search.redirect)
-        if (target) {
-          window.location.assign(target)
-          return
-        }
-      }
-      await navigate({ to: "/dashboard", replace: true })
-    })()
-  }, [navigate, search.application, search.redirect, session, sessionPending])
 
   useEffect(() => {
     if (!allowPublicSignup && mode === "signup") setMode("signin")
@@ -211,14 +196,6 @@ export function LoginPage() {
       ? "Enter your details to create your account"
       : "Choose your preferred sign-in method"
 
-  if (sessionPending || session) {
-    return (
-      <main className="flex min-h-screen items-center justify-center">
-        <Spinner className="size-6" />
-      </main>
-    )
-  }
-
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/30 px-4 py-10 sm:px-6">
       <Card className="w-full max-w-md shadow-none">
@@ -233,13 +210,7 @@ export function LoginPage() {
 
         <CardContent className="flex flex-col gap-5">
           {publicAuthPending ? (
-            <div
-              className="flex h-9 items-center justify-center rounded-md border bg-muted/30"
-              role="status"
-            >
-              <Spinner className="size-4" />
-              <span className="sr-only">Loading authentication options</span>
-            </div>
+            <div className="h-9 rounded-md border bg-muted/30" aria-hidden="true" />
           ) : publicAuthError ? (
             <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-center text-xs text-destructive">
               Authentication options could not be loaded. Existing email sign-in remains available.
