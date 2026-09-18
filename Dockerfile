@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM oven/bun:1.4.2-alpine AS build
+FROM oven/bun:alpine AS build
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -12,7 +12,7 @@ COPY server ./server
 RUN bun run --cwd client build
 RUN bun run --cwd server build
 
-FROM oven/bun:1.4.2-alpine AS runtime
+FROM oven/bun:alpine AS runtime
 WORKDIR /app
 
 COPY --from=build /app/server/dist ./server/dist
