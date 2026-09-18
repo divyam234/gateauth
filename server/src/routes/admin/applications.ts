@@ -1,4 +1,4 @@
-import type { BunRouter } from "../../router.js";
+import { route } from "../../router.js";
 import {
   checkApplicationHealth,
   createApplication,
@@ -98,20 +98,21 @@ function parsePolicySimulation(body: Record<string, unknown>) {
   };
 }
 
-export function registerApplicationAdminRoutes(app: BunRouter): void {
-  app.get("/api/admin/overview", async (c) => {
+export const applicationAdminRoutes = {
+  "/api/admin/overview": {
+    GET: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     return c.json(await getOverview());
-  });
-
-  app.get("/api/admin/applications", async (c) => {
+  }),
+  },
+  "/api/admin/applications": {
+    GET: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     return c.json({ applications: await listApplications() });
-  });
-
-  app.post("/api/admin/applications", async (c) => {
+  }),
+    POST: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     const body = await readJsonObject(c);
@@ -136,16 +137,16 @@ export function registerApplicationAdminRoutes(app: BunRouter): void {
         400,
       );
     }
-  });
-
-  app.get("/api/admin/applications/:id", async (c) => {
+  }),
+  },
+  "/api/admin/applications/:id": {
+    GET: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     const application = await getApplication(c.req.param("id"));
     return application ? c.json({ application }) : c.json({ error: "Not found" }, 404);
-  });
-
-  app.put("/api/admin/applications/:id", async (c) => {
+  }),
+    PUT: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     const before = await getApplication(c.req.param("id"));
@@ -173,9 +174,8 @@ export function registerApplicationAdminRoutes(app: BunRouter): void {
         400,
       );
     }
-  });
-
-  app.delete("/api/admin/applications/:id", async (c) => {
+  }),
+    DELETE: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     const before = await getApplication(c.req.param("id"));
@@ -193,9 +193,10 @@ export function registerApplicationAdminRoutes(app: BunRouter): void {
       ...getRequestAuditMetadata(c.req.raw.headers),
     });
     return c.body(null, 204);
-  });
-
-  app.post("/api/admin/applications/:id/check-health", async (c) => {
+  }),
+  },
+  "/api/admin/applications/:id/check-health": {
+    POST: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     try {
@@ -206,9 +207,10 @@ export function registerApplicationAdminRoutes(app: BunRouter): void {
         404,
       );
     }
-  });
-
-  app.post("/api/admin/policy/simulate", async (c) => {
+  }),
+  },
+  "/api/admin/policy/simulate": {
+    POST: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     const body = await readJsonObject(c);
@@ -251,5 +253,6 @@ export function registerApplicationAdminRoutes(app: BunRouter): void {
         400,
       );
     }
-  });
-}
+  }),
+  },
+};

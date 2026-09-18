@@ -1,4 +1,4 @@
-import type { BunRouter } from "../../router.js";
+import { route } from "../../router.js";
 import {
   queryAuditEvents,
   type AuditOutcome,
@@ -33,8 +33,9 @@ function csvCell(value: unknown): string {
   return `"${string.replaceAll('"', '""')}"`;
 }
 
-export function registerAuditAdminRoutes(app: BunRouter): void {
-  app.get("/api/admin/audit-logs", async (c) => {
+export const auditAdminRoutes = {
+  "/api/admin/audit-logs": {
+    GET: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     return c.json(
@@ -51,9 +52,10 @@ export function registerAuditAdminRoutes(app: BunRouter): void {
         to: c.req.query("to"),
       }),
     );
-  });
-
-  app.get("/api/admin/audit-logs/export.csv", async (c) => {
+  }),
+  },
+  "/api/admin/audit-logs/export.csv": {
+    GET: route(async (c) => {
     const session = await requireAdmin(c);
     if (session instanceof Response) return session;
     const { logs } = await queryAuditEvents({ limit: 500 });
@@ -93,5 +95,6 @@ export function registerAuditAdminRoutes(app: BunRouter): void {
       `attachment; filename="gateauth-audit-${new Date().toISOString().slice(0, 10)}.csv"`,
     );
     return c.body(lines.join("\n"));
-  });
-}
+  }),
+  },
+};

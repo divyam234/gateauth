@@ -1,5 +1,5 @@
 import { asc, desc, eq, ilike, or } from "drizzle-orm";
-import type { BunRouter } from "../../router.js";
+import { route } from "../../router.js";
 import { getRequestAuditMetadata, queryAuditEvents, writeAuditEvent } from "../../audit-log.js";
 import { db } from "../../db.js";
 import {
@@ -13,8 +13,9 @@ import {
 } from "../../db/schema.js";
 import { parseBoundedInteger, requireAdmin } from "../../http.js";
 
-export function registerIdentityAdminRoutes(app: BunRouter): void {
-  app.get("/api/admin/sessions", async (c) => {
+export const identityAdminRoutes = {
+  "/api/admin/sessions": {
+    GET: route(async (c) => {
     const adminSession = await requireAdmin(c);
     if (adminSession instanceof Response) return adminSession;
 
@@ -53,9 +54,10 @@ export function registerIdentityAdminRoutes(app: BunRouter): void {
         active: row.expiresAt.getTime() > Date.now(),
       })),
     });
-  });
-
-  app.delete("/api/admin/sessions/:id", async (c) => {
+  }),
+  },
+  "/api/admin/sessions/:id": {
+    DELETE: route(async (c) => {
     const adminSession = await requireAdmin(c);
     if (adminSession instanceof Response) return adminSession;
 
@@ -75,9 +77,10 @@ export function registerIdentityAdminRoutes(app: BunRouter): void {
       ...getRequestAuditMetadata(c.req.raw.headers),
     });
     return c.body(null, 204);
-  });
-
-  app.get("/api/admin/users/:id/details", async (c) => {
+  }),
+  },
+  "/api/admin/users/:id/details": {
+    GET: route(async (c) => {
     const adminSession = await requireAdmin(c);
     if (adminSession instanceof Response) return adminSession;
 
@@ -187,9 +190,10 @@ export function registerIdentityAdminRoutes(app: BunRouter): void {
       grants,
       events: events.logs,
     });
-  });
-
-  app.get("/api/admin/search", async (c) => {
+  }),
+  },
+  "/api/admin/search": {
+    GET: route(async (c) => {
     const adminSession = await requireAdmin(c);
     if (adminSession instanceof Response) return adminSession;
 
@@ -234,5 +238,6 @@ export function registerIdentityAdminRoutes(app: BunRouter): void {
       applications: matchingApplications,
       events: events.logs,
     });
-  });
-}
+  }),
+  },
+};

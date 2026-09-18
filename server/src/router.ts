@@ -1,15 +1,10 @@
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
+import { env } from "./env.js";
 
 type RoutedRequest = Request & {
   params?: Record<string, string>;
 };
 
 export type RouteHandler = (context: RouteContext) => Response | Promise<Response>;
-export type ResponseFinalizer = (
-  request: Request,
-  response: Response,
-) => Response | Promise<Response>;
-export type RouteErrorHandler = (error: unknown, request: Request) => Response | Promise<Response>;
 
 export interface RouteRequest {
   readonly raw: Request;
@@ -29,8 +24,39 @@ export interface RouteContext {
   body(value: BodyInit | null, status?: number): Response;
 }
 
-type BunRouteHandler = (request: RoutedRequest) => Response | Promise<Response>;
-type BunMethodRoutes = Partial<Record<HttpMethod, BunRouteHandler>>;
+function addVary(headers: Headers, value: string): void {
+  const current = headers.get("vary");
+  const values = new Set((current ?? "").split(",").map((item) => item.trim()).filter(Boolean));
+  values.add(value);
+  headers.set("vary", [...values].join(", "));
+}
+
+function finalizeResponse(request: Request, response: Response): Response {
+  const pathname = new URL(request.url).pathname;
+  if (!pathname.startsWith("/api/")) return response;
+
+  const requestId =
+    response.headers.get("x-request-id") || request.headers.get("x-request-id") || crypto.randomUUID();
+  response.headers.set("x-request-id", requestId);
+  response.headers.set("x-content-type-options", "nosniff");
+  response.headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  response.headers.set("permissions-policy", "camera=(), microphone=(), geolocation=()");
+
+  const origin = request.headers.get("origin");
+  if (origin && env.corsOrigins.includes(origin)) {
+    response.headers.set("access-control-allow-origin", origin);
+    response.headers.set("access-control-allow-credentials", "true");
+    response.headers.set("access-control-allow-methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    response.headers.set(
+      "access-control-allow-headers",
+      "Content-Type, Authorization, X-API-Key, X-Request-ID, X-Captcha-Response",
+    );
+    response.headers.set("access-control-expose-headers", "X-Request-ID");
+    addVary(response.headers, "Origin");
+  }
+
+  return response;
+}
 
 function createContext(request: RoutedRequest): RouteContext {
   const responseHeaders = new Headers();
@@ -79,71 +105,24 @@ function createContext(request: RoutedRequest): RouteContext {
   };
 }
 
-export class BunRouter {
-  readonly routes: Record<string, BunRouteHandler | BunMethodRoutes> = {};
-  private finalizer: ResponseFinalizer = (_request, response) => response;
-  private errorHandler: RouteErrorHandler = (error) => {
-    console.error("[server] unhandled request error", error);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
-  };
-
-  finalizeWith(finalizer: ResponseFinalizer): void {
-    this.finalizer = finalizer;
-  }
-
-  onError(handler: RouteErrorHandler): void {
-    this.errorHandler = handler;
-  }
-
-  get(path: string, handler: RouteHandler): void {
-    this.register("GET", path, handler);
-  }
-
-  post(path: string, handler: RouteHandler): void {
-    this.register("POST", path, handler);
-  }
-
-  put(path: string, handler: RouteHandler): void {
-    this.register("PUT", path, handler);
-  }
-
-  patch(path: string, handler: RouteHandler): void {
-    this.register("PATCH", path, handler);
-  }
-
-  delete(path: string, handler: RouteHandler): void {
-    this.register("DELETE", path, handler);
-  }
-
-  options(path: string, handler: RouteHandler): void {
-    this.register("OPTIONS", path, handler);
-  }
-
-  on(methods: HttpMethod[], path: string, handler: RouteHandler): void {
-    for (const method of methods) this.register(method, path, handler);
-  }
-
-  private register(method: HttpMethod, path: string, handler: RouteHandler): void {
-    const routePaths = path === "*" ? ["/", "/*"] : [path];
-    const wrapped: BunRouteHandler = async (request) => {
-      try {
-        const response = await handler(createContext(request));
-        return await this.finalizer(request, response);
-      } catch (error) {
-        const response = await this.errorHandler(error, request);
-        return await this.finalizer(request, response);
-      }
-    };
-
-    for (const routePath of routePaths) {
-      const existing = this.routes[routePath];
-      if (!existing || typeof existing === "function") {
-        const methods: BunMethodRoutes = {};
-        methods[method] = wrapped;
-        this.routes[routePath] = methods;
-        continue;
-      }
-      existing[method] = wrapped;
+export function route(handler: RouteHandler) {
+  return async (request: RoutedRequest): Promise<Response> => {
+    try {
+      return finalizeResponse(request, await handler(createContext(request)));
+    } catch (error) {
+      console.error("[server] unhandled request error", error);
+      const requestId = request.headers.get("x-request-id") || crypto.randomUUID();
+      return finalizeResponse(
+        request,
+        Response.json(
+          { error: "Internal server error", requestId },
+          { status: 500, headers: { "x-request-id": requestId } },
+        ),
+      );
     }
-  }
+  };
+}
+
+export function notFound(request: Request): Response {
+  return finalizeResponse(request, Response.json({ error: "Not found" }, { status: 404 }));
 }

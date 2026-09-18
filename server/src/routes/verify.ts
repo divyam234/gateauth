@@ -1,5 +1,5 @@
 import { and, eq, gt, isNull, or } from "drizzle-orm";
-import type { BunRouter, RouteContext } from "../router.js";
+import { route, type RouteContext } from "../router.js";
 import { auth } from "../auth.js";
 import {
   applicationDomainMatches,
@@ -188,8 +188,9 @@ async function applyUserGrant(
   };
 }
 
-export function registerVerifyRoutes(app: BunRouter): void {
-  app.get("/api/verify", async (c) => {
+export const verifyRoutes = {
+  "/api/verify": {
+    GET: route(async (c) => {
     const application = await resolveRequestApplication(c);
     if (!application) return c.json({ error: "Unknown protected application" }, 404);
 
@@ -252,5 +253,6 @@ export function registerVerifyRoutes(app: BunRouter): void {
     }
 
     return new Response(null, { status: 200, headers: responseHeaders });
-  });
-}
+  }),
+  },
+};
